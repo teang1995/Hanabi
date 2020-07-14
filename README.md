@@ -149,3 +149,4 @@ def TestForStateDataType(num1: int, num2, num3):
 
 TestForStateDataType('a', 3, 4)      #이와 같이 사용시 'a'에서 warning을 확인할 수 있다.
 ```
+6.시호는 천재니깐 시호 말을 다 듣는다.
