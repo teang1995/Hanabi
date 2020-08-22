@@ -50,7 +50,15 @@ class Client():
         while True:
             data = s.recv(1024)
             self.sendToGame(data)
-        s.close()
+        self.s.close()
+
+    def sendAction(self, action: str):
+        '''
+
+        :param action: //21 이런 형식으로 ㄱㄱ
+        '''
+        assert action[0:2] == '//', 'Action error'
+        self.s.send(action.encode())
 
     def sendToGame(self, data):
         '''

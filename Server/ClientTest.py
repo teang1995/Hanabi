@@ -10,7 +10,7 @@ ITISWHOSTURN = '#T'
 
 # 깃 사용벙 연습중
 
-class Client():
+class client():
     def __init__(self, IP, port):
         self.IP = IP
         self.port = port
@@ -70,9 +70,11 @@ class Client():
             if data.decode()[2] == self.playerNumber:
                 print('It\'s your turn!')
             else:
-                print('Player', data.decode()[2], 'is playing')
+                print('Player', data.decode()[2], '\'s playing')
             return ITISWHOSTURN
 
+        elif data.decode()[0:2] == ITISACTION:
+            return ITISACTION
 
 
     def myPlayerNumberis(self):
@@ -87,8 +89,7 @@ class Client():
         send.start()
 
 
-'''
-c = Client('localhost', 7777)
+
+c = client('localhost', 7777)
 c.connectWithServer()
 c.run()
-'''
