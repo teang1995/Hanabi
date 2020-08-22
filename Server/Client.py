@@ -95,8 +95,7 @@ class Client():
         send.start()
 
 
-'''
-c = Client('localhost', 7777)
-c.connectWithServer()
-c.run()
-'''
+if __name__ == "__main__":
+    c = Client('localhost', 7777)
+    c.connectWithServer()
+    c.run()

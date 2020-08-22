@@ -5,7 +5,7 @@ import threading
 import time
 
 
-MAXPLAYERNUMBER = 4 #실제로 만들어서 플레이 할 때는 이걸 4로 바꾸면 댐
+MAXPLAYERNUMBER = 2 #실제로 만들어서 플레이 할 때는 이걸 4로 바꾸면 댐
 ITISACTION = '//'
 ITISCHAT = '#C'
 ITISPLAYERNUMBER = '#P'
