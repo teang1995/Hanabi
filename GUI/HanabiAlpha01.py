@@ -42,6 +42,7 @@ class HanabiGui(QMainWindow, MainAlpha):
         self.gm = GM(initCards(5), self.clientIndex, self.beginnerIndex)
         self.gm.distributeCards()
         self.btnGiveHint.clicked.connect(self.clickedGiveHint)
+
         # 배경 사진 넣기
         background = QImage("background.jpeg")
         palette = QPalette()
@@ -100,6 +101,11 @@ class HanabiGui(QMainWindow, MainAlpha):
         self.setFixedSize(1910, 990)
         self.setWindowTitle('Hanabi')
         self.show()
+
+    # 부모 창 업데이트 해주는 함수
+    # TODO: update main window by state of gm instance
+    def UpdateMainWindow(self):
+        pass
 
     # 카드 버리기 창
     def ShowThrowDeck(self):
@@ -267,6 +273,7 @@ class AppThrowDeck(QWidget):
                 # 새로 표시할 카드
                 card = self.gm.playerDecks[self.gm.currentPlayerIndex].getCardOrNone(_id)
 
+                # TODO : UI update code => to main UI
                 if card == None:
                     self.deckList[self.gm.currentPlayerIndex][_id].setText("None")
                     SetCardDesign("mine", self.deckList[self.gm.currentPlayerIndex][_id])
