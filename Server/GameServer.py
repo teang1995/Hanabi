@@ -25,9 +25,9 @@ class Client(threading.Thread):
         self.ip = ip
         self.port = port
 
-        #플레이어 넘버를 통신을 통해 지정해줌으로써 관리를 편하게 하고 보기도 편하게함
-        #들어오는 순서대로 1, 2, 3, 4임ㅎ
-        #누구만대로냐고? 내맘ㅎ
+        # 플레이어 넘버를 통신을 통해 지정해줌으로써 관리를 편하게 하고 보기도 편하게함
+        # 들어오는 순서대로 1, 2, 3, 4임ㅎ
+        # 누구만대로냐고? 내맘ㅎ
         self.connection.sendall(('//PN'+str(playerNumber)).encode())
         playerNumber += 1
 
