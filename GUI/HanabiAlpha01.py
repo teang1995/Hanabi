@@ -7,7 +7,7 @@ from Game.GameManager import GameManager as GM
 from Game.GameManagerTest import initCards
 from Game.GameElements import Action as Action
 from Game.GameElements import Hint as Hint
-from Server.Client import  Client
+from Server.Client import Client
 import time
 
 FONTSIZE = 10
@@ -26,9 +26,9 @@ class HanabiGui(QMainWindow, MainAlpha):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        self.client = Client("localhost", 7777)
-        self.client.connectWithServer()
-        self.client.run()
+        # self.client = Client("localhost", 7777)
+        # self.client.connectWithServer()
+        # self.client.run()
 
         '''
                 initCards : 랜덤으로 줘야 해 - 서버에서 해서 뿌려야 할 것 같음. 진영 용택 논의 필요
@@ -107,7 +107,7 @@ class HanabiGui(QMainWindow, MainAlpha):
         if self.isTurn:
             print("Opening a Throw window...")
             self.w = AppThrowDeck(self, self.gm, self.deckList, self.notice, self.btnGiveHint, self.remainDeck,
-                                  self.thrownCardList, self.hintTokenList, self.client)
+                                  self.thrownCardList, self.hintTokenList)
             self.w.setGeometry(QRect(700, 400, 300, 200))
             self.w.show()
 
@@ -117,7 +117,7 @@ class HanabiGui(QMainWindow, MainAlpha):
         if self.isTurn:
             print("Opening a Drop window...")
             self.w = AppDropDeck(self, self.gm, self.deckList, self.droppedCardList,
-                                 self.thrownCardList, self.notice, self.lifeTokenList, self.remainDeck, self.client)
+                                 self.thrownCardList, self.notice, self.lifeTokenList, self.remainDeck)
             self.w.setGeometry(QRect(700, 400, 300, 200))
             self.w.show()
 
@@ -127,7 +127,7 @@ class HanabiGui(QMainWindow, MainAlpha):
             if self.isTurn and self.gm.getHintToken() != 0:
                 print("Opening a GiveHint window...")
                 # 플레이어 덱 정보를 넘겨야 하므로 gm.playerDecks 를 매개변수로 넣는다 .
-                self.w = AppGiveHint(self, self.gm, self.notice, self.btnGiveHint, self.hintTokenList, self.client)
+                self.w = AppGiveHint(self, self.gm, self.notice, self.btnGiveHint, self.hintTokenList)
                 self.w.setGeometry(QRect(700, 400, 300, 200))
                 self.w.show()
 
@@ -208,7 +208,7 @@ def SetCardDesign(color, deck):
 # 카드 버리기 창
 class AppThrowDeck(QWidget):
     def __init__(self, hanabiGUI: HanabiGui, gm: GM, deckList: list, notice: QLabel, btnGiveHint: QPushButton, remainDeck: QLabel
-                 , thrownCardList: list, hintTokenList: list, client: Client):
+                 , thrownCardList: list, hintTokenList: list):
         QWidget.__init__(self)
         self.gm = gm
         self.playerDeck = self.gm.playerDecks[self.gm.currentPlayerIndex]
@@ -221,7 +221,6 @@ class AppThrowDeck(QWidget):
         self.hintTokenList = hintTokenList
         self.colorDict = {"R": 0, "G": 1, "B": 2, "W": 3, "Y": 4}
         self.hanabiGUI = hanabiGUI
-        self.client = client
         self.initUI()
 
     def initUI(self):
@@ -265,7 +264,6 @@ class AppThrowDeck(QWidget):
                 # 게임 진행
                 self.gm.doActionDiscard(Action(2, _id))
                 print("test")
-                self.client.sendAction("//" + str(2) + str(_id))
                 # 새로 표시할 카드
                 card = self.gm.playerDecks[self.gm.currentPlayerIndex].getCardOrNone(_id)
 
@@ -322,7 +320,7 @@ class AppThrowDeck(QWidget):
 # 카드 내기 창
 class AppDropDeck(QWidget):
     def __init__(self, hanabiGui: HanabiGui, gm: GM, deckList: list, droppedCardList: list , thrownCardList: list,
-                 notice: QLabel, lifeTokenList: list, remainDeck: QLabel, client: Client):
+                 notice: QLabel, lifeTokenList: list, remainDeck: QLabel):
         QWidget.__init__(self)
         self.hanabiGui = hanabiGui
         self.gm = gm
@@ -335,7 +333,6 @@ class AppDropDeck(QWidget):
         self.colorDict = {"R" : 0, "G" : 1, "B" : 2, "W" : 3, "Y" : 4}
         self.deckGroup = QButtonGroup()
         self.buttonGroup = QButtonGroup()
-        self.client = client
         self.initUI()
 
     def initUI(self):
@@ -402,7 +399,7 @@ class AppDropDeck(QWidget):
                 '''
                 # 게임 진행 및 flag 설정
                 flag = self.gm.doActionPlay(Action(1, _id))
-                self.client.sendAction("//" + "1" + str(_id))
+                # self.client.sendAction("//" + "1" + str(_id))
                 # 카드 놓는 데에 성공했으면
                 if flag:
                     # 낸 카드 ui 갱신
@@ -479,8 +476,7 @@ class AppDropDeck(QWidget):
 
 # 힌트주기 창
 class AppGiveHint(QWidget):
-    def __init__(self, hanabiGui: HanabiGui, gm: GM, notice: QLabel, btnGiveHint: QPushButton, hintTokenList: list,
-                 client: Client):
+    def __init__(self, hanabiGui: HanabiGui, gm: GM, notice: QLabel, btnGiveHint: QPushButton, hintTokenList: list):
         '''
         :param gm: gameManager
         :param notice: 게임진행 상황 출력하는 QLabel.
@@ -494,7 +490,6 @@ class AppGiveHint(QWidget):
         self.btnGiveHint = btnGiveHint
         self.hintTokenList = hintTokenList
         self.buttonGroup = QButtonGroup()
-        self.client = client
         self.initUI()
 
     def initUI(self):
@@ -621,12 +616,12 @@ class AppGiveHint(QWidget):
                 # 숫자 버튼이면?
                 if 0 <= _id <= 4:
                     hint, correspondedIndexes = self.gm.doAction(Action(3, Hint(_id + 1), self.playerNum))
-                    self.client.sendAction("//3" + str(_id + 1) + str(self.playerNum))
+                    # self.client.sendAction("//3" + str(_id + 1) + str(self.playerNum))
                     endFlag = self.gm.nextTurn()
                     self.close()
                 if 5 <= _id <= 9:
                     hint, correspondedIndexes = self.gm.doAction(Action(3, Hint(colorDict[_id]), self.playerNum))
-                    self.client.sendAction("//3" + colorDict[_id] + str(self.playerNum))
+                    # self.client.sendAction("//3" + colorDict[_id] + str(self.playerNum))
                     endFlag = self.gm.nextTurn()
                     self.close()
                 # ~가 없다는 힌트 줄 때
