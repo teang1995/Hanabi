@@ -105,6 +105,10 @@ class HanabiGui(QMainWindow, MainAlpha):
     # 부모 창 업데이트 해주는 함수
     # TODO: update main window by state of gm instance
     def UpdateMainWindow(self):
+        # 플레이어 덱 갱신
+        # 남은 카드 더미 갱신
+        # 목숨 토큰 갱신
+        # 힌트 토큰 갱신
         pass
 
     # 카드 버리기 창
