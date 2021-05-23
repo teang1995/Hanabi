@@ -1,8 +1,15 @@
 import sys
+import os
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  
+# __file__Get the relative path of the execution file, and the whole line is taken from the upper-level directory
+sys.path.append(BASE_DIR)
+sys.path.append(BASE_DIR + "/GUI")
 from PyQt5.QtWidgets import *
 from PyQt5 import uic
 from PyQt5.QtGui import QImage, QPalette, QBrush, QIcon
 from PyQt5.QtCore import Qt, QRect
+
 from Game.GameManager import GameManager as GM
 from Game.GameManagerTest import initCards
 from Game.GameElements import Action as Action
@@ -76,20 +83,20 @@ class HanabiGui(QMainWindow, MainAlpha):
 
         for card in self.droppedCardList:
             card.setText("0")
-        print(type(self.player3Deck2))
-        for deck in self.gm.playerDecks:
-            print(deck)
-        for i, deck in enumerate(self.deckList):
-            # clinet 위치를 어떻게 잡느냐가 관건..
-            # 아래 주석은 자신의 카드를 가리기 위한 코드. test 시에는 무시하고 진행한다.
-            '''
-            if i == self.clientIndex:
-                for j in range(4):
-                    SetCardDesign("mine", deck[j])
-            '''
-            for j in range(4):
-                SetCardDesign(self.gm.playerDecks[i].getCardOrNone(j).getColor(), deck[j])
-                deck[j].setText(str(self.gm.playerDecks[i].getCardOrNone(j)))
+
+        # for i, deck in enumerate(self.deckList):
+        #     # clinet 위치를 어떻게 잡느냐가 관건..
+        #     # 아래 주석은 자신의 카드를 가리기 위한 코드. test 시에는 무시하고 진행한다.
+        #     '''
+        #     if i == self.clientIndex:
+        #         for j in range(4):
+        #             SetCardDesign("mine", deck[j])
+        #     '''
+        #     for j in range(4):
+        #         SetCardDesign(self.gm.playerDecks[i].getCardOrNone(j).getColor(), deck[j])
+        #         deck[j].setText(str(self.gm.playerDecks[i].getCardOrNone(j)))
+
+        self.updateMainWindow()
 
         self.btnThrow.clicked.connect(self.ShowThrowDeck)
         self.btnDrop.clicked.connect(self.ShowDropDeck)
@@ -104,12 +111,53 @@ class HanabiGui(QMainWindow, MainAlpha):
 
     # 부모 창 업데이트 해주는 함수
     # TODO: update main window by state of gm instance
-    def UpdateMainWindow(self):
-        # 플레이어 덱 갱신
+    def updateMainWindow(self):
+        # TODO: edit pythonic
+        # TODO: show no card info of my card
+
+        # 덱 갱신
+        for i in range(4):
+            playerDeck = self.gm.getPlayerDeck(i)
+
+            for k in range(4):
+                card = playerDeck.getCardOrNone(k)
+
+                if card != None:
+                    SetCardDesign(card.getColor(), self.deckList[i][k])
+                    self.deckList[i][k].setText(str(card))
+                else:
+                    SetCardDesign("None", self.deckList[i][k])
+                    self.deckList[i][k].setText("@@")
+
         # 남은 카드 더미 갱신
+        self.remainDeck.setText("남은 카드 \n%d" % len(self.gm.cards))
+
+        # 낸 카드 갱신
+        color_list = ["R", "G", "B", "W", "Y"]
+        for i, color in enumerate(color_list):
+            self.droppedCardList[i].setText(str(len(self.gm.getPlayedCards(color))))
+
+        # 버린 카드 갱신
+        for i, color in enumerate(color_list):
+            for j in range(5):
+                count = self.gm.getDiscardedCardCounter(color)[j + 1]
+                self.thrownCardList[i][j].setText(str(count))
+
         # 목숨 토큰 갱신
+        numLifeToken = self.gm.getLifeToken()
+        for i, lifeToken in enumerate(self.lifeTokenList):
+            if i < numLifeToken:
+                lifeToken.setText("O")
+            else:
+                lifeToken.setText("X")
+
         # 힌트 토큰 갱신
-        pass
+        numHintToken = self.gm.getHintToken()
+        for i, hintToken in enumerate(self.hintTokenList):
+            if i < numHintToken:
+                hintToken.setText("O")
+            else:
+                hintToken.setText("X")
 
     # 카드 버리기 창
     def ShowThrowDeck(self):
@@ -170,49 +218,58 @@ class GiveHint(QDialog):
         return super().exec_()
 
 
-def SetCardDesign(color, deck):
+def SetCardDesign(color, cardLabel):
+    # TODO: INDENTATION CORRECTION
     if color == "R":
-        deck.setStyleSheet("background-color : rgb(255, 79, 79);"
-                           "border-width: 2px;"
-                           "border-style : solid;"
-                           "border-radius: 20px;"
-                           "border-color : rgb(0, 0, 0)"
-                           )
+        cardLabel.setStyleSheet("background-color : rgb(255, 79, 79);"
+                                "border-width: 2px;"
+                                "border-style : solid;"
+                                "border-radius: 20px;"
+                                "border-color : rgb(0, 0, 0)"
+                                )
     elif color == "G":
-        deck.setStyleSheet("background-color : " + "rgb(11, 222, 0);"
-                           "border-width: 2px;"
-                           "border-style : solid;"
-                           "border-radius: 20px;"
-                           "border-color : rgb(0, 0, 0)"
-                           )
+        cardLabel.setStyleSheet("background-color : " + "rgb(11, 222, 0);"
+                                "border-width: 2px;"
+                                "border-style : solid;"
+                                "border-radius: 20px;"
+                                "border-color : rgb(0, 0, 0)"
+                                )
     elif color == "B":
-        deck.setStyleSheet("background-color : rgb(49, 190, 255);"
-                           "border-width: 2px;"
-                           "border-style : solid;"
-                           "border-radius: 20px;"
-                           "border-color : rgb(0, 0, 0)"
-                           )
+        cardLabel.setStyleSheet("background-color : rgb(49, 190, 255);"
+                                "border-width: 2px;"
+                                "border-style : solid;"
+                                "border-radius: 20px;"
+                                "border-color : rgb(0, 0, 0)"
+                                )
     elif color == "Y":
-        deck.setStyleSheet("background-color : rgb(243, 243, 0);"
-                           "border-width: 2px;"
-                           "border-style : solid;"
-                           "border-radius: 20px;"
-                           "border-color : rgb(0, 0, 0)"
-                           )
+        cardLabel.setStyleSheet("background-color : rgb(243, 243, 0);"
+                                "border-width: 2px;"
+                                "border-style : solid;"
+                                "border-radius: 20px;"
+                                "border-color : rgb(0, 0, 0)"
+                                )
     elif color == "W":
-        deck.setStyleSheet("background-color :  rgb(255, 255, 255);"
-                           "border-width: 2px;"
-                           "border-style : solid;"
-                           "border-radius: 20px;"
-                           "border-color : rgb(0, 0, 0)"
-                           )
+        cardLabel.setStyleSheet("background-color :  rgb(255, 255, 255);"
+                                "border-width: 2px;"
+                                "border-style : solid;"
+                                "border-radius: 20px;"
+                                "border-color : rgb(0, 0, 0)"
+                                )
     elif color == "mine":
-        deck.setStyleSheet("background-color :  rgb(12, 0, 186);"
-                           "border-width: 2px;"
-                           "border-style : solid;"
-                           "border-radius: 20px;"
-                           "border-color : rgb(0, 0, 0)"
-                           )
+        cardLabel.setStyleSheet("background-color :  rgb(12, 0, 186);"
+                                "border-width: 2px;"
+                                "border-style : solid;"
+                                "border-radius: 20px;"
+                                "border-color : rgb(0, 0, 0)"
+                                )
+    elif color == "None":
+        # TODO: to be decided with proper color, design
+        cardLabel.setStyleSheet("background-color :  rgb(0, 0, 0);"
+                                "border-width: 2px;"
+                                "border-style : solid;"
+                                "border-radius: 20px;"
+                                "border-color : rgb(0, 0, 0)"
+                                )
 
 
 # 카드 버리기 창
@@ -266,53 +323,28 @@ class AppThrowDeck(QWidget):
         '''
         for button in self.buttonGroup.buttons():
             if button is self.buttonGroup.button(_id):
-                # print("{}번 플레이어가 {}번째 카드를 버렸습니다.".format(self.gm.currentPlayerIndex, _id + 1)) # DEBUG
-
                 # 버려진 카드
                 cardDiscarded = self.gm.playerDecks[self.gm.currentPlayerIndex].getCardOrNone(_id)
 
                 # 게임 진행
                 self.gm.doActionDiscard(Action(2, _id))
-                print("test")
-                # 새로 표시할 카드
-                card = self.gm.playerDecks[self.gm.currentPlayerIndex].getCardOrNone(_id)
 
-                # TODO : UI update code => to main UI
-                if card == None:
-                    self.deckList[self.gm.currentPlayerIndex][_id].setText("None")
-                    SetCardDesign("mine", self.deckList[self.gm.currentPlayerIndex][_id])
-                else:
-                    # 현재 하나의 gui 에서 플레이할 때 확이하기 위해 남겨둠. 추후 서버 통합시 유저의 카드 확인 불가.
-                    self.deckList[self.gm.currentPlayerIndex][_id].setText(str(card))
-                    SetCardDesign(card.getColor(), self.deckList[self.gm.currentPlayerIndex][_id])
-
-                # 덱이 비지 않았다면
+                # Notice update
                 if not self.gm.isCardsEmpty():
                     notice = ("%d번 플레이어가 %s 카드를 버렸습니다.\n 힌트 토큰이 하나 증가합니다. (8 이상이면 증가하지 않음)" %
                                (self.gm.currentPlayerIndex, str(cardDiscarded)))
-                # 덱이 비었다면
+
                 else:
                     notice = ("%d번 플레이어가 %s 카드를 버렸습니다.\n 힌트 토큰이 하나 증가합니다. (8 이상이면 증가하지 않음)\n "
                                "카드가 전부 떨어졌습니다. 다음 %d번 플레이어의 차례를 마치면 게임이 끝납니다." %
                                (self.gm.currentPlayerIndex, str(cardDiscarded), self.gm.lastPlayerIndex))
 
-
-
                 # 힌트 주기 버튼 갱신
                 self.btnGiveHint.setEnabled(True)
 
-                # 힌트 토큰 갱신
-                self.hintTokenList[self.gm.getHintToken() - 1].setText("O")
-
-                # 남은 카드 장수 갱신
-                self.remainDeck.setText("남은 카드 \n%d" % len(self.gm.cards))
-
-                # thrownCard 갱신
-                self.thrownCardList[self.colorDict[cardDiscarded.getColor()]][cardDiscarded.getNumber() - 1].\
-                    setText(str(self.gm.getDiscardedCardCounter(cardDiscarded.getColor())[cardDiscarded.getNumber()]))
-
                 # 게임 진행
                 endFlag = self.gm.nextTurn()
+                self.hanabiGUI.updateMainWindow()
 
                 if endFlag == None:
                     pass
@@ -383,12 +415,8 @@ class AppDropDeck(QWidget):
         self.setLayout(layout1)
 
     def playCard(self, _id):
-        '''
-                :param _id: 몇 번째 카드를 낼 건지
-                '''
         for button in self.buttonGroup.buttons():
             if button is self.buttonGroup.button(_id):
-
                 # 카드의 색 및 숫자
                 playedCard = self.gm.playerDecks[self.gm.currentPlayerIndex].getCardOrNone(_id)
                 color = playedCard.getColor()
@@ -411,10 +439,10 @@ class AppDropDeck(QWidget):
                 # 게임 진행 및 flag 설정
                 flag = self.gm.doActionPlay(Action(1, _id))
                 # self.client.sendAction("//" + "1" + str(_id))
+
                 # 카드 놓는 데에 성공했으면
                 if flag:
                     # 낸 카드 ui 갱신
-                    self.droppedCardList[self.colorDict[color]].setText(str(len(self.gm.getPlayedCards(color))))
                     # 남은 덱이 있으면
                     if not self.gm.isCardsEmpty():
                         notice = "Play 성공!\n" \
@@ -434,11 +462,6 @@ class AppDropDeck(QWidget):
 
                 # 카드 놓는 데에 실패했으면
                 else:
-                    # 버려진 카드 갱신
-                    self.thrownCardList[self.colorDict[color]][number - 1].\
-                        setText(str(self.gm.getDiscardedCardCounter(color)[number]))
-                    self.lifeTokenList[self.gm.getLifeToken()].setText("X")
-                    # 남은 덱이 있으면
                     if not self.gm.isCardsEmpty():
                         notice = "Play 실패!\n" \
                                  "라이프 토큰이 하나 감소합니다.\n" \
@@ -452,19 +475,6 @@ class AppDropDeck(QWidget):
                                  "카드가 전부 떨어졌습니다.\n" \
                                  "다음 %d번째 플레이어의 차례를 마치면 게임을 끝냅니다." % (self.gm.currentPlayerIndex,
                                                                       (self.gm.currentPlayerIndex + 3) % 4)
-
-                # 카드 낸 후 남은 카드 갱신
-                self.remainDeck.setText("남은 카드 \n%d" % len(self.gm.cards))
-
-                # 새로 표시할 카드
-                card = self.gm.playerDecks[self.gm.currentPlayerIndex].getCardOrNone(_id)
-                if card == None:
-                    self.deckList[self.gm.currentPlayerIndex][_id].setText("None")
-                    SetCardDesign("mine", self.deckList[self.gm.currentPlayerIndex][_id])
-                else:
-                    # 현재 하나의 gui 에서 플레이할 때 확이하기 위해 남겨둠. 추후 서버 통합시 유저의 카드 확인 불가.
-                    self.deckList[self.gm.currentPlayerIndex][_id].setText(str(card))
-                    SetCardDesign(card.getColor(), self.deckList[self.gm.currentPlayerIndex][_id])
 
                 endFlag = self.gm.nextTurn()
 
@@ -481,7 +491,7 @@ class AppDropDeck(QWidget):
                     self.hanabiGui.isTurn = 0
                 # 카드 내기 후 notice 갱신
                 self.notice.setText(notice)
-
+                self.hanabiGui.updateMainWindow()
                 self.close()
 
 
@@ -493,7 +503,7 @@ class AppGiveHint(QWidget):
         :param notice: 게임진행 상황 출력하는 QLabel.
         '''
         QWidget.__init__(self)
-        self.HanabiGui = hanabiGui
+        self.hanabiGui = hanabiGui
         self.gm = gm
         # 첫 창에 뜨는 카드가 자신이 0번유저면 1, 아니면 0이 나오게 함.
         self.playerNum = 1 if self.gm.currentPlayerIndex == 0 else 0
@@ -607,14 +617,14 @@ class AppGiveHint(QWidget):
         # 현재는 "n번의 아이디"에서 n을 가져오는 최악의 방식으로 playerNum 갱신 중. 수정 필요.
         self.playerNum = int(text[0])
         deckList = [self.deck0, self.deck1, self.deck2, self.deck3]
-        for i, deck in enumerate(deckList):
+        for i, cardLabel in enumerate(deckList):
             card = self.gm.playerDecks[self.playerNum].getCardOrNone(i)
             if card == None:
-                deck.setText("None")
-                SetCardDesign("mine", deck)
+                cardLabel.setText("None")
+                SetCardDesign("mine", cardLabel)
             else:
-                deck.setText(str(card))
-                SetCardDesign(self.gm.playerDecks[self.playerNum].getCardOrNone(i).getColor(), deck)
+                cardLabel.setText(str(card))
+                SetCardDesign(self.gm.playerDecks[self.playerNum].getCardOrNone(i).getColor(), cardLabel)
 
     def giveHint(self, _id):
         '''
@@ -623,7 +633,6 @@ class AppGiveHint(QWidget):
         colorDict = {5: "R", 6: "G", 7: "B", 8: "W", 9: "Y"}
         for button in self.buttonGroup.buttons():
             if button is self.buttonGroup.button(_id):
-                # print("{}번째 플레이어에게 {}로 힌트를 주었습니다.".format(self.playerNum, button.text())) # DEBUG
                 # 숫자 버튼이면?
                 if 0 <= _id <= 4:
                     hint, correspondedIndexes = self.gm.doAction(Action(3, Hint(_id + 1), self.playerNum))
@@ -650,8 +659,7 @@ class AppGiveHint(QWidget):
                     time.sleep(5)
                     self.hanabiGui.close()
                 self.notice.setText(notice)
-
-                self.hintTokenList[self.gm.getHintToken()].setText("X")
+                self.hanabiGui.updateMainWindow()
                 if self.gm.getHintToken():
                     pass
                 else:
