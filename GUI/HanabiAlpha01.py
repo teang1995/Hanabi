@@ -112,10 +112,8 @@ class HanabiGui(QMainWindow, MainAlpha):
     # 부모 창 업데이트 해주는 함수
     # TODO: update main window by state of gm instance
     def updateMainWindow(self):
-        # TODO: edit pythonic
-        # TODO: show no card info of my card
-
         # 덱 갱신
+        # TODO: show no card info of my card
         for i in range(4):
             playerDeck = self.gm.getPlayerDeck(i)
 
@@ -219,7 +217,6 @@ class GiveHint(QDialog):
 
 
 def SetCardDesign(color, cardLabel):
-    # TODO: INDENTATION CORRECTION
     if color == "R":
         cardLabel.setStyleSheet("background-color : rgb(255, 79, 79);"
                                 "border-width: 2px;"
