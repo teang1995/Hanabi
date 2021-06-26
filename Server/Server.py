@@ -3,13 +3,37 @@ import socket
 import sys
 import threading
 import time
+import os
+import random
+import pickle
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(BASE_DIR)
+sys.path.append(BASE_DIR + "/Server")
+
+from Game.GameElements import Card
 
 
-MAX_PLAYER_NUMBER = 2 #실제로 만들어서 플레이 할 때는 이걸 4로 바꾸면 댐
+def initRandomCards():
+    colors = ["R", "G", "B", "W", "Y"]
+    counts = [3, 2, 2, 2, 1]
+    cards = []
+
+    for color in colors:
+        for i in range(5):
+            for j in range(counts[i]):
+                cards.append(Card(color, i + 1))
+
+    random.shuffle(cards)
+    return cards
+
+
+MAX_PLAYER_NUMBER = 2    # 실제로 만들어서 플레이 할 때는 이걸 4로 바꾸면 댐
 SYMBOL_ACTION = '//'
 SYMBOL_CHAT = '#C'
 SYMBOL_PLAYER_NUMBER = '#P'
 SYMBOL_WHOS_TURN = '#T'
+SYMBOL_GAME_START = '#S'
 
 
 playerNumber = 0
@@ -41,15 +65,13 @@ class Client(threading.Thread):
 
     def receive(self):
         while True:
-
             print("Waiting msg from the client...")
             data = self.connection.recv(1024)
-            self.send_to_all_clients(data)
+            self.sendToAllClients(data)
             if data.decode()[0:2] == SYMBOL_ACTION:
                 self.turn = 0
 
-    def send_to_all_clients(self, msg):#채팅 커맨드와 누구로부터 왔는지 메세지 순서대로 데이터 전송
-
+    def sendToAllClients(self, msg):    # 채팅 커맨드와 누구로부터 왔는지 메세지 순서대로 데이터 전송
         for client in clients:
             # send msg without self
             if client == self:
@@ -59,13 +81,11 @@ class Client(threading.Thread):
             client.connection.send(msg)
             print(client)
 
-
     def run(self):
         receiver = threading.Thread(target=self.receive)
         receiver.start()
 
     def myTurnIsOver(self):
-
         return 0
 
 
@@ -79,34 +99,47 @@ class Server:
         self.server = None
 
     def fullPlayer(self):
-
         print('Game start : //game\nSelect player : //turn + playernumber')
         data = input('> ')
 
         if data == "//game":# menu 1
+            self.gameStart()
             while True:  # 추후에 게임변수 넣어서 끊고 하고 그럴거임
-                self.gameStart()
+                pass
 
         else:
             print("please enter right commend")
 
     def gameStart(self):
-        for number, client in enumerate(clients):
-            msg = SYMBOL_WHOS_TURN + str(number)
-            self.send_to_all_clients(msg=msg)
+        #for number, client in enumerate(clients):
+        self.sendToAllClients(SYMBOL_GAME_START)
+        time.sleep(0.5)
+
+        firstPlayerNumber = str(0)
+        self.sendToAllClients(firstPlayerNumber)
+        time.sleep(0.5)
+
+        cards = initRandomCards()
+        self.sendToAllClientsBytes(pickle.dumps(cards))
+
+        '''
             client.turn = 1
             while True:
                 if client.turn == 0:
                     break
                 time.sleep(0.5)
+        '''
 
-    def send_to_all_clients(self, msg):# 제에에발 문자열 그대로 넣으세요 아님 바꾸던가
-        '''
+    def sendToAllClientsBytes(self, byteMsg : bytes):
+        """
         :param msg: 모든 Clients에게 보낼 메세지
-        '''
+        """
         for client in clients :
-            print('sending message to ', client.port, msg)  # DEBUG
-            client.connection.send(msg.encode())
+            print('sending message to ', client.port, str(byteMsg))  # DEBUG
+            client.connection.send(byteMsg)
+
+    def sendToAllClients(self, msg : str):    # 제에에발 문자열 그대로 넣으세요 아님 바꾸던가
+        self.sendToAllClientsBytes(msg.encode())
 
     def open_socket(self):
         try:
@@ -138,7 +171,6 @@ class Server:
 
         while True:
             # 접속 완료 후 단계
-
             self.fullPlayer()
 
         self.server.close()

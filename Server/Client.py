@@ -15,6 +15,7 @@ SYMBOL_ACTION = '//'
 SYMBOL_CHAT = '#C'
 SYMBOL_PLAYER_NUMBER = '#P'
 SYMBOL_WHOS_TURN = '#T'
+SYMBOL_GAME_START = '#S'
 
 
 class Client():
@@ -23,6 +24,7 @@ class Client():
         self.port = port
         self.size = 1024
         self.s = None
+        self.messageQueue = list()
 
     def connectWithServer(self):
         try:
@@ -56,23 +58,9 @@ class Client():
     def gettingMsg(self, s):
         while True:
             data = s.recv(1024)
-            print(data)
-            if self.sendToGame(data) == SYMBOL_WHOS_TURN and data.decode()[2] == self.playerNumber :
-                '''
-                self.sendAction(Action(1, 0))
-                self.sendAction(Action(1, 1))
-                self.sendAction(Action(1, 2))
-                self.sendAction(Action(1, 3))
-                self.sendAction(Action(2, 0))
-                self.sendAction(Action(2, 1))
-                self.sendAction(Action(2, 2))
-                self.sendAction(Action(2, 3))
-                self.sendAction(Action(3, Hint('R'), 0))
-                self.sendAction(Action(3, Hint(2), 1))
-                self.sendAction(Action(3, Hint('W'), 2))
-                self.sendAction(Action(3, Hint(3), 3))
-                '''
-                self.sendingMsg(self.s)
+            self.messageQueue.append(data)
+            # TODO: GUI의 별도 스레드에서 메시지 queue를 처리
+
         s.close()
 
     def sendToGame(self, data):
