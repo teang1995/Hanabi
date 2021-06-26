@@ -1,14 +1,21 @@
 import socket
 import threading
 import sys
+import os
+import time
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(BASE_DIR)
+sys.path.append(BASE_DIR + "/Server")
+
 from Game.GameElements import Action
+
+# MESSAGE SYMBOL
 SYMBOL_ACTION = '//'
 SYMBOL_CHAT = '#C'
 SYMBOL_PLAYER_NUMBER = '#P'
 SYMBOL_WHOS_TURN = '#T'
 
-
-# 깃 사용벙 연습중
 
 class Client():
     def __init__(self, IP, port):
@@ -28,7 +35,6 @@ class Client():
                 print('Your player number is ', self.playerNumber)
             else:
                 print('Errer in receiving PN')
-
 
         except socket.error:
             if self.s:
@@ -50,6 +56,20 @@ class Client():
             data = s.recv(1024)
             print(data)
             if self.sendToGame(data) == SYMBOL_WHOS_TURN and data.decode()[2] == self.playerNumber :
+                '''
+                self.sendAction(Action(1, 0))
+                self.sendAction(Action(1, 1))
+                self.sendAction(Action(1, 2))
+                self.sendAction(Action(1, 3))
+                self.sendAction(Action(2, 0))
+                self.sendAction(Action(2, 1))
+                self.sendAction(Action(2, 2))
+                self.sendAction(Action(2, 3))
+                self.sendAction(Action(3, Hint('R'), 0))
+                self.sendAction(Action(3, Hint(2), 1))
+                self.sendAction(Action(3, Hint('W'), 2))
+                self.sendAction(Action(3, Hint(3), 3))
+                '''
                 self.sendingMsg(self.s)
         s.close()
 
@@ -75,15 +95,15 @@ class Client():
             return SYMBOL_WHOS_TURN
 
     def sendAction(self, action: Action):
+        time.sleep(1)
         type_ = action.getActionType()
         actionString = str(type_) + "/"
 
-        if type_ is 3:
+        if type_ == 3:
             actionString += str(action.getTargetIndex()) + "/"
             actionString += str(action.getHint().info)
         else:
             actionString += str(action.getCardIndex())
-        print(actionString)
         self.s.sendall(actionString.encode())
 
     def myPlayerNumberis(self):
@@ -95,6 +115,6 @@ class Client():
 
 
 if __name__ == "__main__":
-    c = Client('172.30.26.42', 7777)
+    c = Client('192.168.0.4', 7777)
     c.connectWithServer()
     c.run()
