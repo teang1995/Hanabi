@@ -31,9 +31,9 @@ class Client(threading.Thread):
         self.ip = ip
         self.port = port
 
-        #플레이어 넘버를 통신을 통해 지정해줌으로써 관리를 편하게 하고 보기도 편하게함
-        #들어오는 순서대로 1, 2, 3, 4임ㅎ
-        #누구만대로냐고? 내맘ㅎ
+        # 플레이어 넘버를 통신을 통해 지정해줌으로써 관리를 편하게 하고 보기도 편하게함
+        # 들어오는 순서대로 1, 2, 3, 4임ㅎ
+        # 누구만대로냐고? 내맘ㅎ
         self.connection.sendall((SYMBOL_PLAYER_NUMBER+str(playerNumber)).encode())
         self.playerNumber = playerNumber
         playerNumber += 1
@@ -51,7 +51,7 @@ class Client(threading.Thread):
     def send_to_all_clients(self, msg):#채팅 커맨드와 누구로부터 왔는지 메세지 순서대로 데이터 전송
 
         for client in clients :
-            print(msg.decode(),self.playerNumber, 'sanding message to ', client.port)#누구한테 보내는지 확인용
+            print(msg.decode(),self.playerNumber, 'sending message to ', client.port)#누구한테 보내는지 확인용
             client.connection.send(msg)
 
 
@@ -67,12 +67,12 @@ class Client(threading.Thread):
 
 class Server:
     global clients
+
     def __init__(self, ip, port):
         self.ip = ip
         self.port = port
         self.address = (self.ip, self.port)
         self.server = None
-
 
     def fullPlayer(self):
 
@@ -88,7 +88,8 @@ class Server:
 
     def gameStart(self):
         for number, client in enumerate(clients):
-            self.send_to_all_clients(SYMBOL_WHOS_TURN + str(number))
+            msg = SYMBOL_WHOS_TURN + str(number)
+            self.send_to_all_clients(msg=msg)
             client.turn = 1
             while True:
                 if client.turn == 0:
@@ -100,7 +101,7 @@ class Server:
         :param msg: 모든 Clients에게 보낼 메세지
         '''
         for client in clients :
-            print('sanding message to ',client.port,msg)
+            print('sanding message to ', client.port, msg)  # DEBUG
             client.connection.send(msg.encode())
 
     def open_socket(self):
@@ -131,7 +132,8 @@ class Server:
 
         print('All clients are connected!')
 
-        while True:#접속 완료 후 단계
+        while True:
+            # 접속 완료 후 단계
 
             self.fullPlayer()
 
@@ -139,5 +141,5 @@ class Server:
 
 
 if __name__ == '__main__':
-    s = Server('', 7777)  # '' 이렇게 IP 부분에 빈칸으로 두면 모든 IP의 접속을 허용해준다고하는데 사실 정확하게는 모르겠어요ㅎ
+    s = Server('0.0.0.0', 7777)  # '' 이렇게 IP 부분에 빈칸으로 두면 모든 IP의 접속을 허용해준다고하는데 사실 정확하게는 모르겠어요ㅎ
     s.run()

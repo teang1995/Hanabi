@@ -73,8 +73,8 @@ class Client():
                 print('Player', data.decode()[2], 'is playing')
             return SYMBOL_WHOS_TURN
 
-    def sendAction(self, Action):
-        self.s.sendall(Action.encode())
+    def sendAction(self, actionString):
+        self.s.sendall(actionString.encode())
 
     def myPlayerNumberis(self):
         return self.playerNumber
