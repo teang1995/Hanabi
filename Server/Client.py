@@ -37,7 +37,6 @@ class Client():
             sys.exit(1)
 
     def sendingMsg(self, s):
-
         while True:
             data = input()
             if data[0:2] not in [SYMBOL_PLAYER_NUMBER, SYMBOL_WHOS_TURN, SYMBOL_ACTION]:  # 커맨드가 없으면 채팅 커맨드 붙임
