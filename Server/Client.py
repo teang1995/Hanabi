@@ -40,7 +40,9 @@ class Client():
             if self.s:
                 self.s.close()
             print("Could not open socket: ")
-            sys.exit(1)
+            return False
+
+        return True
 
     def sendingMsg(self, s):
         while True:

@@ -18,7 +18,8 @@ from Server.Client import Client
 import time
 
 FONTSIZE = 10
-
+SERVER_IP_ADDRESS = "192.168.0.4"
+PORT = 7777
 # 파일명만 바꿔서
 MainAlpha = uic.loadUiType("HanabiAlpha.ui")[0]
 GiveHintAlpha = uic.loadUiType("testUI02.ui")[0]
@@ -33,10 +34,6 @@ class HanabiGui(QMainWindow, MainAlpha):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        # self.client = Client("localhost", 7777)
-        # self.client.connectWithServer()
-        # self.client.run()
-
         '''
                 initCards : 랜덤으로 줘야 해 - 서버에서 해서 뿌려야 할 것 같음. 진영 용택 논의 필요
                 clientIndex : 서버에서 받아야 함
@@ -45,7 +42,8 @@ class HanabiGui(QMainWindow, MainAlpha):
         self.beginnerIndex = 0
         self.clientIndex = 0
         self.isTurn = 1
-
+        self.isConnected = False
+        self.client = Client(IP=SERVER_IP_ADDRESS, port=PORT)
         self.gm = GM(initCards(5), self.clientIndex, self.beginnerIndex)
         self.gm.distributeCards()
         self.btnGiveHint.clicked.connect(self.clickedGiveHint)
@@ -108,6 +106,13 @@ class HanabiGui(QMainWindow, MainAlpha):
         self.setFixedSize(1910, 990)
         self.setWindowTitle('Hanabi')
         self.show()
+
+    def showEvent(self, event):
+        while not self.isConnected:
+            print("trying Connect to Server")
+            self.isConnected = self.client.connectWithServer()
+        event.accept()
+
 
     # 부모 창 업데이트 해주는 함수
     # TODO: update main window by state of gm instance
@@ -324,7 +329,9 @@ class AppThrowDeck(QWidget):
                 cardDiscarded = self.gm.playerDecks[self.gm.currentPlayerIndex].getCardOrNone(_id)
 
                 # 게임 진행
-                self.gm.doActionDiscard(Action(2, _id))
+                action = Action(2, _id)
+                self.hanabiGUI.client.sendAction(action)
+                self.gm.doActionDiscard(action)
 
                 # Notice update
                 if not self.gm.isCardsEmpty():
@@ -434,7 +441,9 @@ class AppDropDeck(QWidget):
                 입력값은 기존과 동일하고, 반환값으로 올바르게 냈는지 여부를 반환함.
                 '''
                 # 게임 진행 및 flag 설정
-                flag = self.gm.doActionPlay(Action(1, _id))
+                action = Action(1, _id)
+                self.hanabiGUI.client.sendAction(action)
+                flag = self.gm.doActionPlay(action)
                 # self.client.sendAction("//" + "1" + str(_id))
 
                 # 카드 놓는 데에 성공했으면
@@ -475,7 +484,7 @@ class AppDropDeck(QWidget):
 
                 endFlag = self.gm.nextTurn()
 
-                if endFlag == None:
+                if endFlag is None:
                     pass
                 if endFlag == 1 or self.gm.getLifeToken() == 0 or self.gm.currentPlayerIndex == self.gm.lastPlayerIndex:
                     print("카드 내기로 게임 끝")  # DEBUG
@@ -632,12 +641,16 @@ class AppGiveHint(QWidget):
             if button is self.buttonGroup.button(_id):
                 # 숫자 버튼이면?
                 if 0 <= _id <= 4:
-                    hint, correspondedIndexes = self.gm.doAction(Action(3, Hint(_id + 1), self.playerNum))
+                    action = Action(3, Hint(_id + 1), self.playerNum)
+                    hint, correspondedIndexes = self.gm.doAction(action)
+                    self.hanabiGui.client.sendAction(action)
                     # self.client.sendAction("//3" + str(_id + 1) + str(self.playerNum))
                     endFlag = self.gm.nextTurn()
                     self.close()
                 if 5 <= _id <= 9:
-                    hint, correspondedIndexes = self.gm.doAction(Action(3, Hint(colorDict[_id]), self.playerNum))
+                    action = Action(3, Hint(colorDict[_id]), self.playerNum)
+                    hint, correspondedIndexes = self.gm.doAction(action)
+                    self.hanabiGui.client.sendAction(action)
                     # self.client.sendAction("//3" + colorDict[_id] + str(self.playerNum))
                     endFlag = self.gm.nextTurn()
                     self.close()
