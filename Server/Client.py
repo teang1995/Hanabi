@@ -37,19 +37,20 @@ class Client():
             sys.exit(1)
 
     def sendingMsg(self, s):
-
         while True:
             data = input()
             if data[0:2] not in [SYMBOL_PLAYER_NUMBER, SYMBOL_WHOS_TURN, SYMBOL_ACTION]:  # 커맨드가 없으면 채팅 커맨드 붙임
                 data = SYMBOL_CHAT + str(self.playerNumber) + data
             s.send(data.encode())
+            return
         s.close()
 
     def gettingMsg(self, s):
-
         while True:
             data = s.recv(1024)
-            self.sendToGame(data)
+            print(data)
+            if self.sendToGame(data) == SYMBOL_WHOS_TURN and data.decode()[2] == self.playerNumber :
+                self.sendingMsg(self.s)
         s.close()
 
     def sendToGame(self, data):
@@ -85,6 +86,6 @@ class Client():
 
 
 if __name__ == "__main__":
-    c = Client('localhost', 7777)
+    c = Client('172.30.26.42', 7777)
     c.connectWithServer()
     c.run()
