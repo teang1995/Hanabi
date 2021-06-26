@@ -78,7 +78,7 @@ class Server:
         print('Game start : //game\nSelect player : //turn + playernumber')
         data = input('> ')
 
-        if data == "//game":#menu 1
+        if data == "//game":# menu 1
             while True:  # 추후에 게임변수 넣어서 끊고 하고 그럴거임
                 self.gameStart()
 
@@ -94,14 +94,13 @@ class Server:
                     break
                 time.sleep(0.5)
 
-    def send_to_all_clients(self, msg):#제에에발 문자열 그대로 넣으세요 아님 바꾸던가
+    def send_to_all_clients(self, msg):# 제에에발 문자열 그대로 넣으세요 아님 바꾸던가
         '''
         :param msg: 모든 Clients에게 보낼 메세지
         '''
         for client in clients :
             print('sanding message to ',client.port,msg)
             client.connection.send(msg.encode())
-
 
     def open_socket(self):
         try:
@@ -115,10 +114,11 @@ class Server:
     def run(self):
         self.open_socket()
         self.server.listen(MAXPLAYERNUMBER)
-        #b = threading.Thread(target= self.broadCast())
-        #b.start()
+        # b = threading.Thread(target= self.broadCast())
+        # b.start()
 
-        while len(clients)!=MAXPLAYERNUMBER:#접속 대기단계
+        while len(clients)!=MAXPLAYERNUMBER:
+            # 접속 대기단계
 
             connection, (ip, port) = self.server.accept()
 
@@ -136,6 +136,7 @@ class Server:
 
         self.server.close()
 
+
 if __name__ == '__main__':
-    s = Server('', 7777) # '' 이렇게 IP부분에 빈칸으로 두면 모든 IP의 접속을 허용해준다고하는데 사실 정확하게는 모르겠어요ㅎ
+    s = Server('', 7777)  # '' 이렇게 IP 부분에 빈칸으로 두면 모든 IP의 접속을 허용해준다고하는데 사실 정확하게는 모르겠어요ㅎ
     s.run()

@@ -40,7 +40,7 @@ class Client():
 
         while True:
             data = input()
-            if data[0:2] not in [ITISPLAYERNUMBER, ITISWHOSTURN, ITISACTION]:  #  커맨드가 없으면 채팅 커맨드 붙임
+            if data[0:2] not in [ITISPLAYERNUMBER, ITISWHOSTURN, ITISACTION]:  # 커맨드가 없으면 채팅 커맨드 붙임
                 data = ITISCHAT + str(self.playerNumber) + data
             s.send(data.encode())
         s.close()
