@@ -50,10 +50,14 @@ class Client(threading.Thread):
 
     def send_to_all_clients(self, msg):#채팅 커맨드와 누구로부터 왔는지 메세지 순서대로 데이터 전송
 
-        for client in clients :
-            print(msg.decode(),self.playerNumber, 'sending message to ', client.port)#누구한테 보내는지 확인용
+        for client in clients:
+            # send msg without self
+            if client == self:
+                # print("pass me") # DEBUG
+                continue
+            print(msg.decode(), self.playerNumber, 'sending message to ', client.port)#누구한테 보내는지 확인용
             client.connection.send(msg)
-
+            print(client)
 
 
     def run(self):
@@ -101,7 +105,7 @@ class Server:
         :param msg: 모든 Clients에게 보낼 메세지
         '''
         for client in clients :
-            print('sanding message to ', client.port, msg)  # DEBUG
+            print('sending message to ', client.port, msg)  # DEBUG
             client.connection.send(msg.encode())
 
     def open_socket(self):
