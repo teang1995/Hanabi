@@ -1,7 +1,7 @@
 import socket
 import threading
 import sys
-
+from Game.GameElements import Action
 SYMBOL_ACTION = '//'
 SYMBOL_CHAT = '#C'
 SYMBOL_PLAYER_NUMBER = '#P'
@@ -74,7 +74,16 @@ class Client():
                 print('Player', data.decode()[2], 'is playing')
             return SYMBOL_WHOS_TURN
 
-    def sendAction(self, actionString):
+    def sendAction(self, action: Action):
+        type_ = action.getActionType()
+        actionString = str(type_) + "/"
+
+        if type_ is 3:
+            actionString += str(action.getTargetIndex()) + "/"
+            actionString += str(action.getHint().info)
+        else:
+            actionString += str(action.getCardIndex())
+        print(actionString)
         self.s.sendall(actionString.encode())
 
     def myPlayerNumberis(self):

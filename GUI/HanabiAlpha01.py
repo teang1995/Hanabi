@@ -662,6 +662,7 @@ class AppGiveHint(QWidget):
                 else:
                     self.btnGiveHint.setEnabled(False)
 
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     myWindow = HanabiGui()

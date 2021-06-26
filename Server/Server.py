@@ -55,7 +55,7 @@ class Client(threading.Thread):
             if client == self:
                 # print("pass me") # DEBUG
                 continue
-            print(msg.decode(), self.playerNumber, 'sending message to ', client.port)#누구한테 보내는지 확인용
+            print(msg.decode(), self.playerNumber, 'sending message to ', client.port)# 누구한테 보내는지 확인용
             client.connection.send(msg)
             print(client)
 
