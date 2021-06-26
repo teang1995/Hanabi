@@ -2,10 +2,10 @@ import socket
 import threading
 import sys
 
-ITISACTION = '//'
-ITISCHAT = '#C'
-ITISPLAYERNUMBER = '#P'
-ITISWHOSTURN = '#T'
+SYMBOL_ACTION = '//'
+SYMBOL_CHAT = '#C'
+SYMBOL_PLAYER_NUMBER = '#P'
+SYMBOL_WHOS_TURN = '#T'
 
 
 # 깃 사용벙 연습중
@@ -23,7 +23,7 @@ class Client():
             self.s.connect((self.IP, self.port))
             print('connected with Server')
             recevePN = self.s.recv(self.size)
-            if recevePN.decode()[0:2] == ITISPLAYERNUMBER:
+            if recevePN.decode()[0:2] == SYMBOL_PLAYER_NUMBER:
                 self.playerNumber = recevePN.decode()[2]
                 print('Your player number is ', self.playerNumber)
             else:
@@ -40,8 +40,8 @@ class Client():
 
         while True:
             data = input()
-            if data[0:2] not in [ITISPLAYERNUMBER, ITISWHOSTURN, ITISACTION]:  # 커맨드가 없으면 채팅 커맨드 붙임
-                data = ITISCHAT + str(self.playerNumber) + data
+            if data[0:2] not in [SYMBOL_PLAYER_NUMBER, SYMBOL_WHOS_TURN, SYMBOL_ACTION]:  # 커맨드가 없으면 채팅 커맨드 붙임
+                data = SYMBOL_CHAT + str(self.playerNumber) + data
             s.send(data.encode())
         s.close()
 
@@ -58,20 +58,20 @@ class Client():
         :param data: 내가 판별해야하는 메세지(커맨드 포함)
         :return: 어떤 명령어인지 커맨드일경우 커맨드 자체를 채팅이나 다른거일경우 해당 커맨드 키값만
         '''
-        if data.decode()[0:2] == ITISACTION:  # 서버로 부터 받은게 커맨드라면
+        if data.decode()[0:2] == SYMBOL_ACTION:  # 서버로 부터 받은게 커맨드라면
             return data.decode()
 
-        elif data.decode()[0:2] == ITISCHAT:  # 채팅이라면
+        elif data.decode()[0:2] == SYMBOL_CHAT:  # 채팅이라면
             if data.decode()[2] != self.playerNumber:  # 채팅이 내꺼면 출력 x
                 print('Player ', data.decode()[2], ' : ', data.decode()[3:])
-            return ITISCHAT
+            return SYMBOL_CHAT
 
-        elif data.decode()[0:2] == ITISWHOSTURN:  # 턴을 알려주는 커맨드라면
+        elif data.decode()[0:2] == SYMBOL_WHOS_TURN:  # 턴을 알려주는 커맨드라면
             if data.decode()[2] == self.playerNumber:
                 print('It\'s your turn!')
             else:
                 print('Player', data.decode()[2], 'is playing')
-            return ITISWHOSTURN
+            return SYMBOL_WHOS_TURN
 
     def sendAction(self, Action):
         self.s.sendall(Action.encode())

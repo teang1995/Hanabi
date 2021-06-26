@@ -5,15 +5,16 @@ import threading
 import time
 
 
-MAXPLAYERNUMBER = 2 #실제로 만들어서 플레이 할 때는 이걸 4로 바꾸면 댐
-ITISACTION = '//'
-ITISCHAT = '#C'
-ITISPLAYERNUMBER = '#P'
-ITISWHOSTURN = '#T'
+MAX_PLAYER_NUMBER = 2 #실제로 만들어서 플레이 할 때는 이걸 4로 바꾸면 댐
+SYMBOL_ACTION = '//'
+SYMBOL_CHAT = '#C'
+SYMBOL_PLAYER_NUMBER = '#P'
+SYMBOL_WHOS_TURN = '#T'
 
 
 playerNumber = 0
 clients = []
+
 
 class Client(threading.Thread):
     global clients
@@ -33,7 +34,7 @@ class Client(threading.Thread):
         #플레이어 넘버를 통신을 통해 지정해줌으로써 관리를 편하게 하고 보기도 편하게함
         #들어오는 순서대로 1, 2, 3, 4임ㅎ
         #누구만대로냐고? 내맘ㅎ
-        self.connection.sendall((ITISPLAYERNUMBER+str(playerNumber)).encode())
+        self.connection.sendall((SYMBOL_PLAYER_NUMBER+str(playerNumber)).encode())
         self.playerNumber = playerNumber
         playerNumber += 1
         self.turn = 0
@@ -44,7 +45,7 @@ class Client(threading.Thread):
             print("Waiting msg from the client...")
             data = self.connection.recv(1024)
             self.send_to_all_clients(data)
-            if data.decode()[0:2] == ITISACTION:
+            if data.decode()[0:2] == SYMBOL_ACTION:
                 self.turn = 0
 
     def send_to_all_clients(self, msg):#채팅 커맨드와 누구로부터 왔는지 메세지 순서대로 데이터 전송
@@ -87,7 +88,7 @@ class Server:
 
     def gameStart(self):
         for number, client in enumerate(clients):
-            self.send_to_all_clients(ITISWHOSTURN + str(number))
+            self.send_to_all_clients(SYMBOL_WHOS_TURN + str(number))
             client.turn = 1
             while True:
                 if client.turn == 0:
@@ -113,11 +114,11 @@ class Server:
 
     def run(self):
         self.open_socket()
-        self.server.listen(MAXPLAYERNUMBER)
+        self.server.listen(MAX_PLAYER_NUMBER)
         # b = threading.Thread(target= self.broadCast())
         # b.start()
 
-        while len(clients)!=MAXPLAYERNUMBER:
+        while len(clients)!=MAX_PLAYER_NUMBER:
             # 접속 대기단계
 
             connection, (ip, port) = self.server.accept()
