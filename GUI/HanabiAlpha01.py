@@ -212,6 +212,39 @@ class HanabiGui(QMainWindow, MainAlpha):
         
         # TODO: 시작 전엔 모든 버튼 잠그고, 시작 플레이어만 풀어주기
 
+    def OnReceiveAction(self, data):
+        assert self.gm is not None
+
+        actionStrings = data.split('/')
+        type = int(actionStrings[0])
+
+        if type == 3:    # type is hint
+            targetIndex = int(actionStrings[1])
+            if str.isdigit()(actionStrings[2]):
+                hint = Hint(int(actionStrings[2]))
+            else:
+                hint = Hint(actionStrings[2])
+
+            action = Action(type, hint, targetIndex)
+            self.gm.doActionHint(action)
+        else:
+            element = int(actionStrings[1])
+            action = Action(type, element)
+
+            if type == 1:
+                self.gm.doActionPlay(action)
+            elif type == 2:
+                self.gm.doActionDiscard(action)
+
+        # TODO: 각 자식 윈도우에서 처리하는 부분을 main 윈도우 멤버 메소드로 옮기기. 그래야 하드코딩 없이 이 부분에서 동일한 처리 가능
+
+        self.updateMainWindow()
+
+
+
+    def OnReceiveChat(self, data):
+        pass
+
 
 class GiveHint(QDialog):
     def __init__(self):
