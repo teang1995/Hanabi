@@ -115,52 +115,52 @@ class HanabiGui(QMainWindow, MainAlpha):
 
 
     # 부모 창 업데이트 해주는 함수
-    # TODO: update main window by state of gm instance
     def updateMainWindow(self):
         # 덱 갱신
         # TODO: show no card info of my card
-        for i in range(4):
-            playerDeck = self.gm.getPlayerDeck(i)
+        if self.gm != None:
+            for i in range(4):
+                playerDeck = self.gm.getPlayerDeck(i)
 
-            for k in range(4):
-                card = playerDeck.getCardOrNone(k)
+                for k in range(4):
+                    card = playerDeck.getCardOrNone(k)
 
-                if card != None:
-                    SetCardDesign(card.getColor(), self.deckList[i][k])
-                    self.deckList[i][k].setText(str(card))
+                    if card != None:
+                        SetCardDesign(card.getColor(), self.deckList[i][k])
+                        self.deckList[i][k].setText(str(card))
+                    else:
+                        SetCardDesign("None", self.deckList[i][k])
+                        self.deckList[i][k].setText("@@")
+
+            # 남은 카드 더미 갱신
+            self.remainDeck.setText("남은 카드 \n%d" % len(self.gm.cards))
+
+            # 낸 카드 갱신
+            color_list = ["R", "G", "B", "W", "Y"]
+            for i, color in enumerate(color_list):
+                self.droppedCardList[i].setText(str(len(self.gm.getPlayedCards(color))))
+
+            # 버린 카드 갱신
+            for i, color in enumerate(color_list):
+                for j in range(5):
+                    count = self.gm.getDiscardedCardCounter(color)[j + 1]
+                    self.thrownCardList[i][j].setText(str(count))
+
+            # 목숨 토큰 갱신
+            numLifeToken = self.gm.getLifeToken()
+            for i, lifeToken in enumerate(self.lifeTokenList):
+                if i < numLifeToken:
+                    lifeToken.setText("O")
                 else:
-                    SetCardDesign("None", self.deckList[i][k])
-                    self.deckList[i][k].setText("@@")
+                    lifeToken.setText("X")
 
-        # 남은 카드 더미 갱신
-        self.remainDeck.setText("남은 카드 \n%d" % len(self.gm.cards))
-
-        # 낸 카드 갱신
-        color_list = ["R", "G", "B", "W", "Y"]
-        for i, color in enumerate(color_list):
-            self.droppedCardList[i].setText(str(len(self.gm.getPlayedCards(color))))
-
-        # 버린 카드 갱신
-        for i, color in enumerate(color_list):
-            for j in range(5):
-                count = self.gm.getDiscardedCardCounter(color)[j + 1]
-                self.thrownCardList[i][j].setText(str(count))
-
-        # 목숨 토큰 갱신
-        numLifeToken = self.gm.getLifeToken()
-        for i, lifeToken in enumerate(self.lifeTokenList):
-            if i < numLifeToken:
-                lifeToken.setText("O")
-            else:
-                lifeToken.setText("X")
-
-        # 힌트 토큰 갱신
-        numHintToken = self.gm.getHintToken()
-        for i, hintToken in enumerate(self.hintTokenList):
-            if i < numHintToken:
-                hintToken.setText("O")
-            else:
-                hintToken.setText("X")
+            # 힌트 토큰 갱신
+            numHintToken = self.gm.getHintToken()
+            for i, hintToken in enumerate(self.hintTokenList):
+                if i < numHintToken:
+                    hintToken.setText("O")
+                else:
+                    hintToken.setText("X")
 
     # 카드 버리기 창
     def ShowThrowDeck(self):
@@ -197,6 +197,20 @@ class HanabiGui(QMainWindow, MainAlpha):
         if self.isTurn:
             winGiveHint = GiveHint()
             winGiveHint.show()
+
+    def OnReceiveGameStartSymbol(self, data: str):
+        beginPlayerIndex = int(data[0])
+        cardStrings = data[1:].split()
+
+        cards = []
+        for cardStr in cardStrings:
+            cards.append(Card(cardStr[0], int(cardStr[1])))
+
+        self.gm = GameManager(cards, self.clientIndex, beginPlayerIndex)
+        self.gm.distributeCards()
+        self.updateMainWindow()
+        
+        # TODO: 시작 전엔 모든 버튼 잠그고, 시작 플레이어만 풀어주기
 
 
 class GiveHint(QDialog):
