@@ -5,7 +5,6 @@ import threading
 import time
 import os
 import random
-import pickle
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
@@ -14,7 +13,7 @@ sys.path.append(BASE_DIR + "/Server")
 from Game.GameElements import Card
 
 
-def initRandomCards():
+def CreateRandomCards():
     colors = ["R", "G", "B", "W", "Y"]
     counts = [3, 2, 2, 2, 1]
     cards = []
@@ -115,12 +114,19 @@ class Server:
         self.sendToAllClients(SYMBOL_GAME_START)
         time.sleep(0.5)
 
+
+        cards = CreateRandomCards()
+        cardData = "";
+        for card in cards:
+            cardData += str(card) + ','
+        cardData = cardData[:-1]
+
+        self.sendToAllClients(cardData)
+        time.sleep(0.5)
+
         firstPlayerNumber = str(0)
         self.sendToAllClients(firstPlayerNumber)
         time.sleep(0.5)
-
-        cards = initRandomCards()
-        self.sendToAllClientsBytes(pickle.dumps(cards))
 
         '''
             client.turn = 1
