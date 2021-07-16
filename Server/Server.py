@@ -67,8 +67,6 @@ class Client(threading.Thread):
             print("Waiting msg from the client...")
             data = self.connection.recv(1024)
             self.sendToAllClients(data)
-            if data.decode()[0:2] == SYMBOL_ACTION:
-                self.turn = 0
 
     def sendToAllClients(self, msg):    # 채팅 커맨드와 누구로부터 왔는지 메세지 순서대로 데이터 전송
         for client in clients:
@@ -84,9 +82,6 @@ class Client(threading.Thread):
         receiver = threading.Thread(target=self.receive)
         receiver.start()
 
-    def myTurnIsOver(self):
-        return 0
-
 
 class Server:
     global clients
@@ -101,7 +96,7 @@ class Server:
         print('Game start : //game\nSelect player : //turn + playernumber')
         data = input('> ')
 
-        if data == "//game":# menu 1
+        if data == "//game":    # menu 1
             self.gameStart()
             while True:  # 추후에 게임변수 넣어서 끊고 하고 그럴거임
                 pass
