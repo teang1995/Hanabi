@@ -10,10 +10,11 @@ from PyQt5 import uic
 from PyQt5.QtGui import QImage, QPalette, QBrush, QIcon
 from PyQt5.QtCore import Qt, QRect
 
-from Game.GameManager import GameManager as GM
+from Game.GameManager import GameManager
 from Game.GameManagerTest import initCards
-from Game.GameElements import Action as Action
-from Game.GameElements import Hint as Hint
+from Game.GameElements import Action
+from Game.GameElements import Hint
+from Game.GameElements import Card
 from Server.Client import Client
 import time
 
@@ -44,8 +45,7 @@ class HanabiGui(QMainWindow, MainAlpha):
         self.isTurn = 1
         self.isConnected = False
         self.client = Client(IP=SERVER_IP_ADDRESS, port=PORT)
-        self.gm = GM(initCards(5), self.clientIndex, self.beginnerIndex)
-        self.gm.distributeCards()
+        self.gm = None
         self.btnGiveHint.clicked.connect(self.clickedGiveHint)
 
         # 배경 사진 넣기
@@ -54,7 +54,7 @@ class HanabiGui(QMainWindow, MainAlpha):
         palette.setBrush(10, QBrush(background))
         self.setPalette(palette)
         self.notice.setText(" ")
-        self.remainDeck.setText("남은 카드 \n%d" % len(self.gm.cards))
+        self.remainDeck.setText("남은 카드 \n0")
 
         # 들고 있는 카드의 list
         self.deckList = [[self.player0Deck0, self.player0Deck1, self.player0Deck2, self.player0Deck3],
@@ -276,7 +276,7 @@ def SetCardDesign(color, cardLabel):
 
 # 카드 버리기 창
 class AppThrowDeck(QWidget):
-    def __init__(self, hanabiGUI: HanabiGui, gm: GM, deckList: list, notice: QLabel, btnGiveHint: QPushButton, remainDeck: QLabel
+    def __init__(self, hanabiGUI: HanabiGui, gm: GameManager, deckList: list, notice: QLabel, btnGiveHint: QPushButton, remainDeck: QLabel
                  , thrownCardList: list, hintTokenList: list):
         QWidget.__init__(self)
         self.gm = gm
@@ -366,7 +366,7 @@ class AppThrowDeck(QWidget):
 
 # 카드 내기 창
 class AppDropDeck(QWidget):
-    def __init__(self, hanabiGui: HanabiGui, gm: GM, deckList: list, droppedCardList: list , thrownCardList: list,
+    def __init__(self, hanabiGui: HanabiGui, gm: GameManager, deckList: list, droppedCardList: list , thrownCardList: list,
                  notice: QLabel, lifeTokenList: list, remainDeck: QLabel):
         QWidget.__init__(self)
         self.hanabiGui = hanabiGui
@@ -503,7 +503,7 @@ class AppDropDeck(QWidget):
 
 # 힌트주기 창
 class AppGiveHint(QWidget):
-    def __init__(self, hanabiGui: HanabiGui, gm: GM, notice: QLabel, btnGiveHint: QPushButton, hintTokenList: list):
+    def __init__(self, hanabiGui: HanabiGui, gm: GameManager, notice: QLabel, btnGiveHint: QPushButton, hintTokenList: list):
         '''
         :param gm: gameManager
         :param notice: 게임진행 상황 출력하는 QLabel.
