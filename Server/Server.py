@@ -27,7 +27,7 @@ def CreateRandomCards():
     return cards
 
 
-MAX_PLAYER_NUMBER = 2    # 실제로 만들어서 플레이 할 때는 이걸 4로 바꾸면 댐
+MAX_PLAYER_NUMBER = 4    # 실제로 만들어서 플레이 할 때는 이걸 4로 바꾸면 댐
 SYMBOL_ACTION = '//'
 SYMBOL_CHAT = '#C'
 SYMBOL_PLAYER_NUMBER = '#P'
@@ -110,22 +110,16 @@ class Server:
             print("please enter right commend")
 
     def gameStart(self):
-        #for number, client in enumerate(clients):
-        self.sendToAllClients(SYMBOL_GAME_START)
-        time.sleep(0.5)
-
+        startData = SYMBOL_GAME_START
+        startData += str(0)  # first player number
 
         cards = CreateRandomCards()
-        cardData = "";
         for card in cards:
-            cardData += str(card) + ','
-        cardData = cardData[:-1]
+            startData += str(card) + ','
+        startData = startData[:-1]
 
-        self.sendToAllClients(cardData)
-        time.sleep(0.5)
 
-        firstPlayerNumber = str(0)
-        self.sendToAllClients(firstPlayerNumber)
+        self.sendToAllClients(startData)
         time.sleep(0.5)
 
         '''
