@@ -44,7 +44,7 @@ class HanabiGui(QMainWindow, MainAlpha):
         self.clientIndex = 0
         self.isTurn = 1
         self.isConnected = False
-        self.client = Client(IP=SERVER_IP_ADDRESS, port=PORT)
+        self.client = Client(self.OnReceiveGameStartSymbol, self.OnReceiveChat, self.OnReceiveAction, IP=SERVER_IP_ADDRESS, port=PORT)
         self.gm = None
         self.btnGiveHint.clicked.connect(self.clickedGiveHint)
 

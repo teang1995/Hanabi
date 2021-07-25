@@ -9,7 +9,7 @@ sys.path.append(BASE_DIR)
 sys.path.append(BASE_DIR + "/Server")
 
 from Game.GameElements import Action
-
+from Game.GameElements import Card
 # MESSAGE SYMBOL
 SYMBOL_ACTION = '//'
 SYMBOL_CHAT = '#C'
@@ -19,12 +19,15 @@ SYMBOL_GAME_START = '#S'
 
 
 class Client():
-    def __init__(self, IP, port):
+    def __init__(self, startHandler, chatHandler, actionHandler, IP, port):
         self.IP = IP
         self.port = port
         self.size = 1024
         self.s = None
         self.messageQueue = list()
+        self.startHandler = startHandler
+        self.actionHandler = actionHandler
+        self.chatHandler = chatHandler
 
     def connectWithServer(self):
         try:
@@ -55,35 +58,28 @@ class Client():
             return
         s.close()
 
+    def getEventHandler(self, symbol):
+        if symbol == SYMBOL_ACTION:
+            return self.actionHandler
+
+        elif symbol == SYMBOL_GAME_START:
+            return self.startHandler
+
+        elif symbol == SYMBOL_CHAT:
+            return self.chatHandler
+
+        return None
+
     def gettingMsg(self, s):
         while True:
-            data = s.recv(1024)
-            self.messageQueue.append(data)
-            # TODO: GUI의 별도 스레드에서 메시지 queue를 처리
-
+            data_ = s.recv(1024)
+            symbol = data_[0:2]
+            data = data_[2:]
+            handler = self.getEventHanler(symbol)
+            if handler is not None:
+                handler(data)
         s.close()
-
-    def sendToGame(self, data):
-        '''
-        서버로부터 받은 데이터를 게임으로 보낼 함수
-        :param data: 내가 판별해야하는 메세지(커맨드 포함)
-        :return: 어떤 명령어인지 커맨드일경우 커맨드 자체를 채팅이나 다른거일경우 해당 커맨드 키값만
-        '''
-        if data.decode()[0:2] == SYMBOL_ACTION:  # 서버로 부터 받은게 커맨드라면
-            return data.decode()
-
-        elif data.decode()[0:2] == SYMBOL_CHAT:  # 채팅이라면
-            if data.decode()[2] != self.playerNumber:  # 채팅이 내꺼면 출력 x
-                print('Player ', data.decode()[2], ' : ', data.decode()[3:])
-            return SYMBOL_CHAT
-
-        elif data.decode()[0:2] == SYMBOL_WHOS_TURN:  # 턴을 알려주는 커맨드라면
-            if data.decode()[2] == self.playerNumber:
-                print('It\'s your turn!')
-            else:
-                print('Player', data.decode()[2], 'is playing')
-            return SYMBOL_WHOS_TURN
-
+        
     def sendAction(self, action: Action):
         time.sleep(1)
         type_ = action.getActionType()
@@ -105,6 +101,6 @@ class Client():
 
 
 if __name__ == "__main__":
-    c = Client('192.168.0.4', 7777)
+    c = Client('3.14.133.163', 7777)
     c.connectWithServer()
     c.run()
