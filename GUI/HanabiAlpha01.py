@@ -167,8 +167,7 @@ class HanabiGui(QMainWindow, MainAlpha):
         # 내 차례라면 창을 연다.
         if self.isTurn:
             print("Opening a Throw window...")
-            self.w = AppThrowDeck(self, self.gm, self.deckList, self.notice, self.btnGiveHint, self.remainDeck,
-                                  self.thrownCardList, self.hintTokenList)
+            self.w = AppThrowDeck(self)
             self.w.setGeometry(QRect(700, 400, 300, 200))
             self.w.show()
 
@@ -212,7 +211,7 @@ class HanabiGui(QMainWindow, MainAlpha):
         
         # TODO: 시작 전엔 모든 버튼 잠그고, 시작 플레이어만 풀어주기
 
-    def OnReceiveAction(self, data):
+    def OnReceiveAction(self, data: str):
         assert self.gm is not None
 
         actionStrings = data.split('/')
@@ -220,7 +219,7 @@ class HanabiGui(QMainWindow, MainAlpha):
 
         if type == 3:    # type is hint
             targetIndex = int(actionStrings[1])
-            if str.isdigit()(actionStrings[2]):
+            if str.isdigit(actionStrings[2]):
                 hint = Hint(int(actionStrings[2]))
             else:
                 hint = Hint(actionStrings[2])
@@ -234,16 +233,45 @@ class HanabiGui(QMainWindow, MainAlpha):
             if type == 1:
                 self.gm.doActionPlay(action)
             elif type == 2:
-                self.gm.doActionDiscard(action)
+                self.OnCurrentPlayerDiscard(element, bUiInput=False)
 
-        # TODO: 각 자식 윈도우에서 처리하는 부분을 main 윈도우 멤버 메소드로 옮기기. 그래야 하드코딩 없이 이 부분에서 동일한 처리 가능
+        # TODO: 각 자식 윈도우에서 처리하는 부분을 main 윈도우 멤버 메소드로 옮겨 하드코딩 없이 이 부분에서 동일한 처리하기 => 진행중
 
         self.updateMainWindow()
 
-
-
-    def OnReceiveChat(self, data):
+    def OnReceiveChat(self, data: str):
+        # 아직 채팅 UI가 없음
         pass
+
+    def OnCurrentPlayerDiscard(self, cardIndex: int, bUiInput: bool):
+        discardedCard = self.gm.playerDecks[self.gm.currentPlayerIndex].getCardOrNone(cardIndex)
+
+        # 게임 진행
+        action = Action(2, cardIndex)
+
+        if bUiInput:    # UI를 통해 입력되었다면 서버로 전달되어야함
+            # TODO: 클라이언트가 초기화되지 않았을 때도 클라이언트를 테스트하기 위해 clinet.isConnectValid() 함수가 있으면 좋을듯
+            # 자꾸 크래시나서 불필요한 테스트 전처리를 많이 해야함 ㅠㅠ
+            self.client.sendAction(action)
+
+        self.gm.doActionDiscard(action)
+
+        # Notice update
+        notice = "%d번 플레이어가 %s 카드를 버렸습니다.\n 힌트 토큰이 하나 증가합니다. (8 이상이면 증가하지 않음)\n" % \
+                 (self.gm.currentPlayerIndex, str(discardedCard))
+        if self.gm.isCardsEmpty():
+            notice += "카드가 전부 떨어졌습니다. 다음 %d번 플레이어의 차례를 마치면 게임이 끝납니다.\n" % self.gm.lastPlayerIndex
+
+        # 게임 진행
+        bEnd = self.gm.nextTurn()
+
+        if bEnd:
+            notice += "게임 종료!\n최종 점수: %d점\n" % self.gm.calculateScore()
+
+        # notice 갱신
+        self.notice.setText(notice)
+
+        self.updateMainWindow()
 
 
 class GiveHint(QDialog):
@@ -323,20 +351,10 @@ def SetCardDesign(color, cardLabel):
 
 # 카드 버리기 창
 class AppThrowDeck(QWidget):
-    def __init__(self, hanabiGUI: HanabiGui, gm: GameManager, deckList: list, notice: QLabel, btnGiveHint: QPushButton, remainDeck: QLabel
-                 , thrownCardList: list, hintTokenList: list):
+    def __init__(self, mainUi: HanabiGui):
         QWidget.__init__(self)
-        self.gm = gm
-        self.playerDeck = self.gm.playerDecks[self.gm.currentPlayerIndex]
         self.buttonGroup = QButtonGroup()
-        self.deckList = deckList
-        self.btnGiveHint = btnGiveHint
-        self.notice = notice
-        self.remainDeck = remainDeck
-        self.thrownCardList = thrownCardList
-        self.hintTokenList = hintTokenList
-        self.colorDict = {"R": 0, "G": 1, "B": 2, "W": 3, "Y": 4}
-        self.hanabiGUI = hanabiGUI
+        self.mainUi = mainUi
         self.initUI()
 
     def initUI(self):
@@ -346,7 +364,7 @@ class AppThrowDeck(QWidget):
         deck2 = QPushButton("??")
         deck3 = QPushButton("??")
 
-        self.buttonGroup.buttonClicked[int].connect(self.discardCard)
+        self.buttonGroup.buttonClicked[int].connect(self.OnButtonClicked)
         self.buttonGroup.addButton(deck0, 0)
         self.buttonGroup.addButton(deck1, 1)
         self.buttonGroup.addButton(deck2, 2)
@@ -365,50 +383,17 @@ class AppThrowDeck(QWidget):
         deck3.setMaximumHeight(400)
         self.setLayout(layout1)
 
-    def discardCard(self, _id):
+    def OnButtonClicked(self, _id: int):
         '''
         :param _id: 몇 번째 카드를 버릴 건지
         :return: 버릴 카드 정보 반환
         '''
-        for button in self.buttonGroup.buttons():
-            if button is self.buttonGroup.button(_id):
-                # 버려진 카드
-                cardDiscarded = self.gm.playerDecks[self.gm.currentPlayerIndex].getCardOrNone(_id)
+        if len(self.buttonGroup.buttons()) <= _id:
+            return
 
-                # 게임 진행
-                action = Action(2, _id)
-                self.hanabiGUI.client.sendAction(action)
-                self.gm.doActionDiscard(action)
-
-                # Notice update
-                if not self.gm.isCardsEmpty():
-                    notice = ("%d번 플레이어가 %s 카드를 버렸습니다.\n 힌트 토큰이 하나 증가합니다. (8 이상이면 증가하지 않음)" %
-                               (self.gm.currentPlayerIndex, str(cardDiscarded)))
-
-                else:
-                    notice = ("%d번 플레이어가 %s 카드를 버렸습니다.\n 힌트 토큰이 하나 증가합니다. (8 이상이면 증가하지 않음)\n "
-                               "카드가 전부 떨어졌습니다. 다음 %d번 플레이어의 차례를 마치면 게임이 끝납니다." %
-                               (self.gm.currentPlayerIndex, str(cardDiscarded), self.gm.lastPlayerIndex))
-
-                # 힌트 주기 버튼 갱신
-                self.btnGiveHint.setEnabled(True)
-
-                # 게임 진행
-                endFlag = self.gm.nextTurn()
-                self.hanabiGUI.updateMainWindow()
-
-                if endFlag == None:
-                    pass
-                if endFlag == 1 or self.gm.getLifeToken() == 0 or self.gm.currentPlayerIndex == self.gm.lastPlayerIndex:
-                    print("카드 버리기로 게임 끝")  # DEBUG
-                    notice = "게임 종료!\n" \
-                             "최종 점수: %d점" % (self.gm.calculateScore())
-                    time.sleep(3)
-                    self.hanabiGui.close()
-
-                # notice 갱신
-                self.notice.setText(notice)
-                self.close()
+        # 버려진 카드
+        self.mainUi.OnCurrentPlayerDiscard(_id, bUiInput=True)
+        self.close()
 
 
 # 카드 내기 창

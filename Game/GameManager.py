@@ -77,11 +77,13 @@ class GameManager:
 
     def nextTurn(self):
         '''
-        :return: 게임이 끝났으면 1, 아니면 0을 반환.
+        :return: 게임이 끝났으면 False, 아니면 True를 반환.
         '''
         self.currentPlayerIndex = (self.currentPlayerIndex + 1) % 4
         if self.lastPlayerIndex == self.currentPlayerIndex:
             self.onGameEnd()
+            return True
+        return False
 
     def getPlayerCount(self):
         return len(self.playerDecks)
