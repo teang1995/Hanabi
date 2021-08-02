@@ -225,11 +225,11 @@ class HanabiGui(QMainWindow, MainAlpha):
                 hint = Hint(actionStrings[2])
             self.onCurrentPlayerGiveHint(hint, targetIndex)
         else:
-            element = int(actionStrings[1])
-            action = Action(type, element)
+            element = int(actionStrings[1]) # card index
 
             if type == 1:
-                self.gm.doActionPlay(action)
+                self.OnCurrentPlayerPlay(element, bUiInput=False)
+
             elif type == 2:
                 self.OnCurrentPlayerDiscard(element, bUiInput=False)
 
@@ -240,6 +240,67 @@ class HanabiGui(QMainWindow, MainAlpha):
     def OnReceiveChat(self, data: str):
         # 아직 채팅 UI가 없음
         pass
+
+    def OnCurrentPlayerPlay(self, cardIndex: int, bUiInput: bool):
+        # TODO : notice 만들 때 한 번에 만들지 말고 append 하는 방식으로 작성하여 코드 중복 방지.
+        action = Action(1, cardIndex)
+
+        if bUiInput:
+            self.client.sendAction(action)
+
+        playedCard = self.gm.playerDecks[self.gm.currentPlayerIndex].getCardOrNone(cardIndex)
+
+        flag = self.gm.doActionPlay(action)
+
+        # 카드 내는 데에 성공했다면
+        if flag:
+            # 남은 덱이 있다면
+            if not self.gm.isCardsEmpty():
+                notice = "Play 성공!\n" \
+                         "%d번째 플레이어가 %s 카드를 냈습니다.\n" \
+                         "%d번 플레이어가 새로운 카드를 받았습니다." % (self.gm.currentPlayerIndex, str(playedCard),
+                                                       self.gm.currentPlayerIndex)
+
+            # 남은 덱이 없다면
+            else:
+                notice = "Play 성공!\n" \
+                         "%d번째 플레이어가 %s 카드를 냈습니다.\n" \
+                         "%d번 플레이어가 새로운 카드를 받았습니다\n" \
+                         "카드가 전부 떨어졌습니다. \n" \
+                         "다음 %d번째 플레이어의 차례를 마치면 게임을 끝냅니다." \
+                         % (self.gm.currentPlayerIndex, str(playedCard), self.gm.currentPlayerIndex,
+                            (self.gm.currentPlayerIndex + 3) % 4)
+
+            # 카드 내는 데에 실패했다면
+        else:
+            if not self.gm.isCardsEmpty():
+                notice = "Play 실패!\n" \
+                         "라이프 토큰이 하나 감소합니다.\n" \
+                         "%d번 플레이어가 새로운 카드를 받았습니다.\n" % (self.gm.currentPlayerIndex)
+
+            # 남은 덱이 없으면
+            else:
+                notice = "Play 실패!\n" \
+                         "라이프 토큰이 하나 감소합니다.\n" \
+                         "%d번 플레이어가 새로운 카드를 받았습니다.\n" \
+                         "카드가 전부 떨어졌습니다.\n" \
+                         "다음 %d번째 플레이어의 차례를 마치면 게임을 끝냅니다." % (self.gm.currentPlayerIndex,
+                                                              (self.gm.currentPlayerIndex + 3) % 4)
+
+        endFlag = self.gm.nextTurn()
+        if not endFlag:
+            pass
+
+        if endFlag or self.gm.getLifeToken() == 0:
+            print("카드 내기로 게임 끝")  # DEBUG
+            notice = "게임 종료!\n" \
+                     "최종 점수: %d점" % (self.gm.calculateScore())
+
+            # 게임이 끝나면 행동 버튼 눌리지 않게 처리함. 추후 변경 필요
+            self.isTurn = 0
+        # 카드 내기 후 notice 갱신
+        self.notice.setText(notice)
+        self.updateMainWindow()
 
     def OnCurrentPlayerDiscard(self, cardIndex: int, bUiInput: bool):
         discardedCard = self.gm.playerDecks[self.gm.currentPlayerIndex].getCardOrNone(cardIndex)
@@ -440,20 +501,10 @@ class AppThrowDeck(QWidget):
 
 # 카드 내기 창
 class AppDropDeck(QWidget):
-    def __init__(self, hanabiGui: HanabiGui, gm: GameManager, deckList: list, droppedCardList: list , thrownCardList: list,
-                 notice: QLabel, lifeTokenList: list, remainDeck: QLabel):
+    def __init__(self, mainUi: HanabiGui):
         QWidget.__init__(self)
-        self.hanabiGui = hanabiGui
-        self.gm = gm
-        self.droppedCardList = droppedCardList
-        self.deckList = deckList
-        self.thrownCardList = thrownCardList
-        self.notice = notice
-        self.lifeTokenList = lifeTokenList
-        self.remainDeck = remainDeck
-        self.colorDict = {"R" : 0, "G" : 1, "B" : 2, "W" : 3, "Y" : 4}
-        self.deckGroup = QButtonGroup()
         self.buttonGroup = QButtonGroup()
+        self.mainUi = mainUi
         self.initUI()
 
     def initUI(self):
@@ -463,7 +514,7 @@ class AppDropDeck(QWidget):
         self.deck2 = QPushButton()
         self.deck3 = QPushButton()
 
-        self.buttonGroup.buttonClicked[int].connect(self.playCard)
+        self.buttonGroup.buttonClicked[int].connect(self.onButtonClicked)
         self.buttonGroup.addButton(self.deck0, 0)
         self.buttonGroup.addButton(self.deck1, 1)
         self.buttonGroup.addButton(self.deck2, 2)
@@ -484,7 +535,7 @@ class AppDropDeck(QWidget):
         self.cardList = [self.deck0, self.deck1, self.deck2, self.deck3]
 
         for i, deck in enumerate(self.cardList):
-            card = self.gm.playerDecks[self.gm.currentPlayerIndex].getCardOrNone(i)
+            card = self.mainUi.gm.playerDecks[self.mainUi.gm.currentPlayerIndex].getCardOrNone(i)
             if card is None:
                 deck.setText("None")
             else:
@@ -492,87 +543,13 @@ class AppDropDeck(QWidget):
             SetCardDesign("mine", deck)
         self.setLayout(layout1)
 
-    def playCard(self, _id):
-        for button in self.buttonGroup.buttons():
-            if button is self.buttonGroup.button(_id):
-                # 카드의 색 및 숫자
-                playedCard = self.gm.playerDecks[self.gm.currentPlayerIndex].getCardOrNone(_id)
-                color = playedCard.getColor()
-                number = playedCard.getNumber()
-                # print("{}번 플레이어가 {}번째 카드를 냈습니다.".format(self.gm.currentPlayerIndex, _id + 1)) # DEBUG
-                '''
-                카드 배치 성공 여부에 따라 행동이 달라짐. 
-                성공했다면 playedCardList를, 실패했다면 discardedCardList 를 조작해주어야 함.
-                우선 doAction 함수의 카드를 내는 부분에만 early return 을 넣어주어 성공 여부를 구분했음.
-                1) 이를 개선할 방법이 있는지 알아봐야 함.
-                2) 버려진 카드와 배치된 카드를 받아올 가장 효율적인 방법을 알아야 함.
-                2-1) 현재까지 파악한 바로는 카드 색으로만 list 를 다루는 걸로 확인되는데, 숫자까지 구분해 digit 개념으로 리스트를 
-                    따로 만들거나 ui 표시를 위한 리스트를 따로 만드는 것이 좋아보임.
-                '''
-                '''
-                2020.08.17 updated
-                기존의 doAction함수가 변경되면서 doActionPlay를 사용함. 
-                입력값은 기존과 동일하고, 반환값으로 올바르게 냈는지 여부를 반환함.
-                '''
-                # 게임 진행 및 flag 설정
-                action = Action(1, _id)
-                self.hanabiGUI.client.sendAction(action)
-                flag = self.gm.doActionPlay(action)
-                # self.client.sendAction("//" + "1" + str(_id))
+    def onButtonClicked(self, _id: int):
+        if len(self.buttonGroup.buttons()) <= _id:
+            return
 
-                # 카드 놓는 데에 성공했으면
-                if flag:
-                    # 낸 카드 ui 갱신
-                    # 남은 덱이 있으면
-                    if not self.gm.isCardsEmpty():
-                        notice = "Play 성공!\n" \
-                                 "%d번째 플레이어가 %s 카드를 냈습니다.\n" \
-                                 "%d번 플레이어가 새로운 카드를 받았습니다." % (self.gm.currentPlayerIndex, str(playedCard),
-                                                               self.gm.currentPlayerIndex)
-                    # 남은 덱이 없으면
-                    else:
-                        notice = "Play 성공!\n" \
-                                 "%d번째 플레이어가 %s 카드를 냈습니다.\n" \
-                                 "%d번 플레이어가 새로운 카드를 받았습니다\n" \
-                                 "카드가 전부 떨어졌습니다. \n" \
-                                 "다음 %d번째 플레이어의 차례를 마치면 게임을 끝냅니다." \
-                                 % (self.gm.currentPlayerIndex, str(playedCard), self.gm.currentPlayerIndex,
-                                   (self.gm.currentPlayerIndex + 3) % 4)
-
-
-                # 카드 놓는 데에 실패했으면
-                else:
-                    if not self.gm.isCardsEmpty():
-                        notice = "Play 실패!\n" \
-                                 "라이프 토큰이 하나 감소합니다.\n" \
-                                 "%d번 플레이어가 새로운 카드를 받았습니다.\n" % (self.gm.currentPlayerIndex)
-
-                    # 남은 덱이 없으면
-                    else:
-                        notice = "Play 실패!\n" \
-                                 "라이프 토큰이 하나 감소합니다.\n" \
-                                 "%d번 플레이어가 새로운 카드를 받았습니다.\n" \
-                                 "카드가 전부 떨어졌습니다.\n" \
-                                 "다음 %d번째 플레이어의 차례를 마치면 게임을 끝냅니다." % (self.gm.currentPlayerIndex,
-                                                                      (self.gm.currentPlayerIndex + 3) % 4)
-
-                endFlag = self.gm.nextTurn()
-
-                if endFlag is None:
-                    pass
-                if endFlag == 1 or self.gm.getLifeToken() == 0 or self.gm.currentPlayerIndex == self.gm.lastPlayerIndex:
-                    print("카드 내기로 게임 끝")  # DEBUG
-                    notice = "게임 종료!\n" \
-                             "최종 점수: %d점" % (self.gm.calculateScore())
-                    self.notice.setText(notice)
-                    self.close()
-
-                    # 게임이 끝나면 행동 버튼 눌리지 않게 처리함. 추후 변경 필요
-                    self.hanabiGui.isTurn = 0
-                # 카드 내기 후 notice 갱신
-                self.notice.setText(notice)
-                self.hanabiGui.updateMainWindow()
-                self.close()
+        # 카드 플레이
+        self.mainUi.OnCurrentPlayerPlay(_id, bUiInput=True)
+        self.close()
 
 
 # 힌트주기 창
