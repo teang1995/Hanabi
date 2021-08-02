@@ -244,6 +244,7 @@ class HanabiGui(QMainWindow, MainAlpha):
         pass
 
     def OnCurrentPlayerPlay(self, cardIndex: int, bUiInput: bool):
+        # TODO : notice 만들 때 한 번에 만들지 말고 append 하는 방식으로 작성하여 코드 중복 방지.
         action = Action(1, cardIndex)
 
         if bUiInput:
@@ -289,22 +290,19 @@ class HanabiGui(QMainWindow, MainAlpha):
                                                               (self.gm.currentPlayerIndex + 3) % 4)
 
         endFlag = self.gm.nextTurn()
-        if endFlag is None:
+        if not endFlag:
             pass
 
-        if endFlag == 1 or self.gm.getLifeToken() == 0 or self.gm.currentPlayerIndex == self.gm.lastPlayerIndex:
+        if endFlag or self.gm.getLifeToken() == 0:
             print("카드 내기로 게임 끝")  # DEBUG
             notice = "게임 종료!\n" \
                      "최종 점수: %d점" % (self.gm.calculateScore())
-            self.notice.setText(notice)
-            self.close()
 
             # 게임이 끝나면 행동 버튼 눌리지 않게 처리함. 추후 변경 필요
             self.isTurn = 0
         # 카드 내기 후 notice 갱신
         self.notice.setText(notice)
         self.updateMainWindow()
-        self.close()
 
     def OnCurrentPlayerDiscard(self, cardIndex: int, bUiInput: bool):
         discardedCard = self.gm.playerDecks[self.gm.currentPlayerIndex].getCardOrNone(cardIndex)
