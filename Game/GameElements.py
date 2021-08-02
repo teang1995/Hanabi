@@ -1,4 +1,5 @@
 class Hint:
+    HINT_INFO = [1, 2, 3, 4, 5, "R", "G", "B", "W", "Y"]
 
     def __init__(self, info):
         """
@@ -17,6 +18,22 @@ class Hint:
     
     def __str__(self):
         return "%s" % str(self.info)
+
+    def getHintString(self):
+        if self.isColor():
+            if self.info is "R":
+                hintString = "빨간색"
+            elif self.info is "G":
+                hintString = "초록색"
+            elif self.info is "B":
+                hintString = "파란색"
+            elif self.info is "W":
+                hintString = "하얀색"
+            else:
+                hintString = "노란색"
+        else:
+            hintString = str(self.info) + "번"
+        return hintString
 
 
 class Card:

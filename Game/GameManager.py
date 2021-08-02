@@ -77,7 +77,7 @@ class GameManager:
 
     def nextTurn(self):
         '''
-        :return: 게임이 끝났으면 False, 아니면 True를 반환.
+        :return: 게임이 끝났으면 True, 아니면 False를 반환.
         '''
         self.currentPlayerIndex = (self.currentPlayerIndex + 1) % 4
         if self.lastPlayerIndex == self.currentPlayerIndex:

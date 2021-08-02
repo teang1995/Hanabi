@@ -223,9 +223,7 @@ class HanabiGui(QMainWindow, MainAlpha):
                 hint = Hint(int(actionStrings[2]))
             else:
                 hint = Hint(actionStrings[2])
-
-            action = Action(type, hint, targetIndex)
-            self.gm.doActionHint(action)
+            self.onCurrentPlayerGiveHint(hint, targetIndex)
         else:
             element = int(actionStrings[1])
             action = Action(type, element)
@@ -272,6 +270,50 @@ class HanabiGui(QMainWindow, MainAlpha):
         self.notice.setText(notice)
 
         self.updateMainWindow()
+
+    def onCurrentPlayerGiveHint(self, hint: Hint, targetIndex: int, bUiInput: bool):
+        # 게임 진행
+        action = Action(3, hint, targetIndex)
+
+        if bUiInput:  # UI를 통해 입력되었다면 서버로 전달되어야함
+            self.client.sendAction(action)
+
+        result = self.gm.doActionHint(action)
+        correspondedIndexes = result[1]
+
+        hintString = hint.getHintString()
+        notice = ""
+
+        if not correspondedIndexes:    # 힌트와 일치하는 카드가 없는 경우 해당 카드가 없다 힌트를 준 것
+            notice = "%d번 플레이어가 %d번 플레이어에게\n%s 카드가 없음을 알려주었습니다.\n" \
+                     % (self.gm.currentPlayerIndex, targetIndex, hintString)
+        else:
+            notice = "%d번 플레이어가 %d번 플레이의\n" % (self.gm.getCurrentPlayerIndex(), targetIndex)
+            for cardIndex in correspondedIndexes:
+                notice += "%d번 " % cardIndex
+            notice += "카드가\n"
+            notice += "%s 카드임을 알려주었습니다.\n" % hintString
+
+        notice += "힌트 토큰이 하나 감소합니다.\n"
+
+        # 힌트 토큰 수가 0이라면 힌트 버튼 잠그기
+        if self.gm.getHintToken() == 0:
+            self.btnGiveHint.setEnabled(False)
+
+        # 게임 진행
+        bEnd = self.gm.nextTurn()
+        if bEnd:
+            notice += "게임 종료!\n최종 점수: %d점\n" % self.gm.calculateScore()
+
+        # notice 갱신
+        self.notice.setText(notice)
+
+        self.updateMainWindow()
+
+
+
+
+
 
 
 class GiveHint(QDialog):
@@ -535,19 +577,17 @@ class AppDropDeck(QWidget):
 
 # 힌트주기 창
 class AppGiveHint(QWidget):
-    def __init__(self, hanabiGui: HanabiGui, gm: GameManager, notice: QLabel, btnGiveHint: QPushButton, hintTokenList: list):
+    def __init__(self, mainUi: HanabiGui):
         '''
         :param gm: gameManager
         :param notice: 게임진행 상황 출력하는 QLabel.
         '''
         QWidget.__init__(self)
-        self.hanabiGui = hanabiGui
-        self.gm = gm
+        self.mainUi = mainUi
+        self.gm = mainUi.gm
+        self.selectorIndex = self.gm.getCurrentPlayerIndex()
         # 첫 창에 뜨는 카드가 자신이 0번유저면 1, 아니면 0이 나오게 함.
-        self.playerNum = 1 if self.gm.currentPlayerIndex == 0 else 0
-        self.notice = notice
-        self.btnGiveHint = btnGiveHint
-        self.hintTokenList = hintTokenList
+        self.targetPlayerIndex = 1 if self.gm.currentPlayerIndex == 0 else 0
         self.buttonGroup = QButtonGroup()
         self.initUI()
 
@@ -572,18 +612,18 @@ class AppGiveHint(QWidget):
                 continue
             cob.addItem(player)
 
-        self.buttonGroup.buttonClicked[int].connect(self.giveHint)
-        cob.activated[str].connect(self.onActivated)
+        self.buttonGroup.buttonClicked[int].connect(self.onButtonClicked)
+        cob.currentIndexChanged[int].connect(self.onComboBoxIndexChanged)
 
         deckList = [self.deck0, self.deck1, self.deck2, self.deck3]
         layout2 = QHBoxLayout()
         for i, deck in enumerate(deckList):
-            if self.gm.playerDecks[self.playerNum].getCardOrNone(i) is None:
+            if self.gm.playerDecks[self.targetPlayerIndex].getCardOrNone(i) is None:
                 deck.setText("None")
                 SetCardDesign("mine", self.deck0)
             else:
-                deck.setText(str(self.gm.playerDecks[self.playerNum].getCardOrNone(i)))
-                SetCardDesign(self.gm.playerDecks[self.playerNum].getCardOrNone(i).getColor(), deck)
+                deck.setText(str(self.gm.playerDecks[self.targetPlayerIndex].getCardOrNone(i)))
+                SetCardDesign(self.gm.playerDecks[self.targetPlayerIndex].getCardOrNone(i).getColor(), deck)
 
         layout2.addWidget(self.deck0)
         layout2.addWidget(self.deck1)
@@ -651,61 +691,26 @@ class AppGiveHint(QWidget):
         cob.setMinimumSize(300, 30)
         self.setLayout(layout5)
 
-    def onActivated(self, text):
-        # 현재는 "n번의 아이디"에서 n을 가져오는 최악의 방식으로 playerNum 갱신 중. 수정 필요.
-        self.playerNum = int(text[0])
+    def onComboBoxIndexChanged(self, index: int):
+        # 현재 힌트를 주는 플레이어의 인덱스보다 작다면 +1 해주어야함
+        self.targetPlayerIndex = index
+        if self.selectorIndex <= index:
+            self.targetPlayerIndex += 1
+
         deckList = [self.deck0, self.deck1, self.deck2, self.deck3]
         for i, cardLabel in enumerate(deckList):
-            card = self.gm.playerDecks[self.playerNum].getCardOrNone(i)
-            if card == None:
+            card = self.gm.playerDecks[self.targetPlayerIndex].getCardOrNone(i)
+            if card is None:
                 cardLabel.setText("None")
                 SetCardDesign("mine", cardLabel)
             else:
                 cardLabel.setText(str(card))
-                SetCardDesign(self.gm.playerDecks[self.playerNum].getCardOrNone(i).getColor(), cardLabel)
+                SetCardDesign(self.gm.playerDecks[self.targetPlayerIndex].getCardOrNone(i).getColor(), cardLabel)
 
-    def giveHint(self, _id):
-        '''
-        :return: 힌트에 대한 정보를 줄 것. 플레이어 번호 + 힌트를 str로 넘긴다.
-        '''
-        colorDict = {5: "R", 6: "G", 7: "B", 8: "W", 9: "Y"}
-        for button in self.buttonGroup.buttons():
-            if button is self.buttonGroup.button(_id):
-                # 숫자 버튼이면?
-                if 0 <= _id <= 4:
-                    action = Action(3, Hint(_id + 1), self.playerNum)
-                    hint, correspondedIndexes = self.gm.doAction(action)
-                    self.hanabiGui.client.sendAction(action)
-                    # self.client.sendAction("//3" + str(_id + 1) + str(self.playerNum))
-                    endFlag = self.gm.nextTurn()
-                    self.close()
-                if 5 <= _id <= 9:
-                    action = Action(3, Hint(colorDict[_id]), self.playerNum)
-                    hint, correspondedIndexes = self.gm.doAction(action)
-                    self.hanabiGui.client.sendAction(action)
-                    # self.client.sendAction("//3" + colorDict[_id] + str(self.playerNum))
-                    endFlag = self.gm.nextTurn()
-                    self.close()
-                # ~가 없다는 힌트 줄 때
-                if len(correspondedIndexes) != 0:
-                    notice = "%d번 플레이어가 %d번 플레이어에게 \n %s번째 카드가 %s임을 알려주었습니다.\n" \
-                             "힌트 토큰이 하나 감소합니다." % (self.gm.currentPlayerIndex - 1, self.playerNum, correspondedIndexes, hint)
-                # ~가 있다는 힌트 줄 때
-                else:
-                    notice = "%d번 플레이어가 %d번 플레이어에게 \n %s 카드가 없음을 알려주었습니다.\n" \
-                             "힌트 토큰이 하나 감소합니다." % (self.gm.currentPlayerIndex - 1, self.playerNum, hint)
-                if endFlag or self.gm.currentPlayerIndex == self.gm.lastPlayerIndex:
-                    print("힌트 주기로 게임 끝") # DEBUG
-                    notice = "게임 종료!\n" \
-                             "최종 점수: %d점" % (self.gm.calculateScore())
-                    time.sleep(5)
-                    self.hanabiGui.close()
-                self.notice.setText(notice)
-                self.hanabiGui.updateMainWindow()
-                if self.gm.getHintToken():
-                    pass
-                else:
-                    self.btnGiveHint.setEnabled(False)
+    def onButtonClicked(self, index: int):
+        hint = Hint(Hint.HINT_INFO[index])
+        self.hanabiGui.onCurrentPlayerGiveHint(hint, self.targetPlayerIndex, bUiInput=True)
+        self.close()
 
 
 if __name__ == "__main__":
