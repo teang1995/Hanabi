@@ -461,7 +461,7 @@ class AppThrowDeck(QWidget):
 
 # 카드 내기 창
 class AppDropDeck(QWidget):
-    def __init__(self, mainUi: HanabiGui,):
+    def __init__(self, mainUi: HanabiGui):
         QWidget.__init__(self)
         self.buttonGroup = QButtonGroup()
         self.mainUi = mainUi
@@ -474,7 +474,7 @@ class AppDropDeck(QWidget):
         self.deck2 = QPushButton()
         self.deck3 = QPushButton()
 
-        self.buttonGroup.buttonClicked[int].connect(self.playCard)
+        self.buttonGroup.buttonClicked[int].connect(self.onButtonClicked)
         self.buttonGroup.addButton(self.deck0, 0)
         self.buttonGroup.addButton(self.deck1, 1)
         self.buttonGroup.addButton(self.deck2, 2)
