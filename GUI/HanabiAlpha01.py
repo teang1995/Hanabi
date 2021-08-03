@@ -175,20 +175,19 @@ class HanabiGui(QMainWindow, MainAlpha):
         # 내 차례라면 창을 연다.
         if self.isTurn:
             print("Opening a Drop window...")
-            self.w = AppDropDeck(self, self.gm, self.deckList, self.droppedCardList,
-                                 self.thrownCardList, self.notice, self.lifeTokenList, self.remainDeck)
+            self.w = AppDropDeck(self)
             self.w.setGeometry(QRect(700, 400, 300, 200))
             self.w.show()
 
     # 힌트 주기 창
     def showGiveHint(self):
         # 내 차례라면 창을 연다.
-            if self.isTurn and self.gm.getHintToken() != 0:
-                print("Opening a GiveHint window...")
-                # 플레이어 덱 정보를 넘겨야 하므로 gm.playerDecks 를 매개변수로 넣는다 .
-                self.w = AppGiveHint(self, self.gm, self.notice, self.btnGiveHint, self.hintTokenList)
-                self.w.setGeometry(QRect(700, 400, 300, 200))
-                self.w.show()
+        if self.isTurn and self.gm.getHintToken() != 0:
+            print("Opening a GiveHint window...")
+            # 플레이어 덱 정보를 넘겨야 하므로 gm.playerDecks 를 매개변수로 넣는다 .
+            self.w = AppGiveHint(self)
+            self.w.setGeometry(QRect(700, 400, 300, 200))
+            self.w.show()
 
     def clickedGiveHint(self):
         # 내 차례라면 창을 연다.
