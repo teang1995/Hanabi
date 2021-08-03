@@ -74,7 +74,7 @@ class Client(threading.Thread):
             if client == self:
                 # print("pass me") # DEBUG
                 continue
-            print(msg.decode(), self.playerNumber, 'sending message to ', client.port)# 누구한테 보내는지 확인용
+            print(msg.decode(), self.playerNumber, 'sending message to ', client.port) # 누구한테 보내는지 확인용
             client.connection.send(msg)
             print(client)
 
@@ -113,28 +113,19 @@ class Server:
             startData += str(card) + ','
         startData = startData[:-1]
 
-
         self.sendToAllClients(startData)
         time.sleep(0.5)
 
-        '''
-            client.turn = 1
-            while True:
-                if client.turn == 0:
-                    break
-                time.sleep(0.5)
-        '''
-
-    def sendToAllClientsBytes(self, byteMsg : bytes):
+    def sendToAllClientsBytes(self, byteMsg: bytes):
         """
-        :param msg: 모든 Clients에게 보낼 메세지
+        :param byteMsg: 모든 Clients에게 보낼 메세지
         """
         for client in clients :
             print('sending message to ', client.port, str(byteMsg))  # DEBUG
             client.connection.send(byteMsg)
 
-    def sendToAllClients(self, msg : str):    # 제에에발 문자열 그대로 넣으세요 아님 바꾸던가
-        self.sendToAllClientsBytes(msg.encode())
+    def sendToAllClients(self, strMsg: str):
+        self.sendToAllClientsBytes(strMsg.encode())
 
     def open_socket(self):
         try:
@@ -148,12 +139,9 @@ class Server:
     def run(self):
         self.open_socket()
         self.server.listen(MAX_PLAYER_NUMBER)
-        # b = threading.Thread(target= self.broadCast())
-        # b.start()
 
         while len(clients)!=MAX_PLAYER_NUMBER:
             # 접속 대기단계
-
             connection, (ip, port) = self.server.accept()
 
             c = Client(ip, port, connection)
@@ -172,5 +160,5 @@ class Server:
 
 
 if __name__ == '__main__':
-    s = Server('0.0.0.0', 7777)  # '' 이렇게 IP 부분에 빈칸으로 두면 모든 IP의 접속을 허용해준다고하는데 사실 정확하게는 모르겠어요ㅎ
+    s = Server('0.0.0.0', 7777)
     s.run()

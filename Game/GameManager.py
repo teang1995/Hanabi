@@ -1,5 +1,3 @@
-from Game.GameElements import Hint as Hint
-from Game.GameElements import Card as Card
 from Game.GameElements import Action as Action
 from Game.GameElements import PlayerDeck as PlayerDeck
 
@@ -211,7 +209,6 @@ class GameManager:
                     self.lastPlayerIndex = self.currentPlayerIndex
                     # print("카드가 전부 떨어졌습니다. 다음 %d번 플레이어의 차례를 마치면 게임이 끝납니다." % (self.currentPlayerIndex - 1))  # DEBUG
 
-
     def doActionHint(self, action: Action):
         """
         힌트주기 Action 을 수행하는 함수
@@ -242,11 +239,3 @@ class GameManager:
     def canHint(self):
         # 힌트를 사용 가능한지
         return self.__hintToken is not 0
-
-    def onGameEnd(self):
-        # 실제론 이 함수에서 UI랑 서버쪽에 게임이 끝났다 알려야 할듯?
-        print()
-        print("***** 게임 종료! 최종점수: %d점 ******" % self.calculateScore())
-        return 1
-
-
