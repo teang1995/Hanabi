@@ -13,6 +13,7 @@ class GameManager:
         self.id = "teang1995"
         self.__hintToken = 8
         self.__lifeToken = 3
+        self.__bTurnOver = False
 
         self.cards = cards
 
@@ -48,7 +49,7 @@ class GameManager:
         return len(self.cards) == 0
 
     def isGameEnd(self):
-        return self.__lifeToken is 0
+        return self.__bTurnOver or self.__lifeToken is 0
 
     def giveOneCard(self, playerIndex: int):
         """
@@ -77,19 +78,15 @@ class GameManager:
         assert self.__lifeToken > 0, "life can't be negative value"
         self.__lifeToken -= 1
 
-        # 라이프 토큰이 다 달아버리면 바로 게임 종료
-        if self.__lifeToken == 0:
-            self.onGameEnd()
-
     def nextTurn(self):
-        '''
+        """
+        do Action 호출 후 다음 턴을 진행하는 함수
         :return: 게임이 끝났으면 True, 아니면 False를 반환.
-        '''
+        """
         self.currentPlayerIndex = (self.currentPlayerIndex + 1) % 4
         if self.lastPlayerIndex == self.currentPlayerIndex:
-            self.onGameEnd()
-            return True
-        return False
+            self.__bTurnOver = True
+        return self.isGameEnd()
 
     def getPlayerCount(self):
         return len(self.playerDecks)
