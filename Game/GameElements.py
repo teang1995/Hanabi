@@ -1,5 +1,17 @@
 class Hint:
-    HINT_INFO = [1, 2, 3, 4, 5, "R", "G", "B", "W", "Y"]
+    HINT_INFO = [1, 2, 3, 4, 5, 'R', 'G', 'B', 'W', 'Y']
+    HINT_STRING_DICT = {
+        1: '1번',
+        2: '2번',
+        3: '3번',
+        4: '4번',
+        5: '5번',
+        'R': '빨강색',
+        'G': '초록색',
+        'B': '파랑색',
+        'W': '하양색',
+        'Y': '노랑색'
+    }
 
     def __init__(self, info):
         """
@@ -20,20 +32,7 @@ class Hint:
         return "%s" % str(self.info)
 
     def getHintString(self):
-        if self.isColor():
-            if self.info is "R":
-                hintString = "빨간색"
-            elif self.info is "G":
-                hintString = "초록색"
-            elif self.info is "B":
-                hintString = "파란색"
-            elif self.info is "W":
-                hintString = "하얀색"
-            else:
-                hintString = "노란색"
-        else:
-            hintString = str(self.info) + "번"
-        return hintString
+        return Hint.HINT_STRING_DICT[self.info]
 
 
 class Card:

@@ -21,19 +21,27 @@ class GameManager:
         self.__bluePlayedCards = []
         self.__whitePlayedCards = []
         self.__yellowPlayedCards = []
+        self.__playedCardDict = {
+            'R': self.__redPlayedCards,
+            'G': self.__greenPlayedCards,
+            'B': self.__bluePlayedCards,
+            'W': self.__whitePlayedCards,
+            'Y': self.__yellowPlayedCards
+        }
 
-        # self.discardedCardCounter = [COLOR, 1_cnt, 2_cnt, 3_cnt, 4_cnt, 5_cnt]
+        # self.<COLOR>discardedCardCounter = [COLOR, 1_cnt, 2_cnt, 3_cnt, 4_cnt, 5_cnt]
         self.__redDiscardedCardCounter = ['R', 0, 0, 0, 0, 0]
         self.__greenDiscardedCardCounter = ['G', 0, 0, 0, 0, 0]
         self.__blueDiscardedCardCounter = ['B', 0, 0, 0, 0, 0]
         self.__whiteDiscardedCardCounter = ['W', 0, 0, 0, 0, 0]
         self.__yellowDiscardedCardCounter = ['Y', 0, 0, 0, 0, 0]
-
-        self.__discardedCardCounterList = [self.__redDiscardedCardCounter,
-                                           self.__greenDiscardedCardCounter,
-                                           self.__blueDiscardedCardCounter,
-                                           self.__whiteDiscardedCardCounter,
-                                           self.__yellowDiscardedCardCounter]
+        self.__discardedCardCounterDict = {
+            'R': self.__redDiscardedCardCounter,
+            'G': self.__greenDiscardedCardCounter,
+            'B': self.__blueDiscardedCardCounter,
+            'W': self.__whiteDiscardedCardCounter,
+            'Y': self.__yellowDiscardedCardCounter
+        }
 
     def isCardsEmpty(self):
         # 카드더미가 비었는지 확인하는 함수
@@ -100,32 +108,14 @@ class GameManager:
 
     def getPlayedCards(self, color: str):
         assert color == "R" or color == "G" or color == "B" or color == "W" or color == "Y", "invalid card color"
-
-        if color == "R":
-            return self.__redPlayedCards
-        elif color == "G":
-            return self.__greenPlayedCards
-        elif color == "B":
-            return self.__bluePlayedCards
-        elif color == "W":
-            return self.__whitePlayedCards
-        return self.__yellowPlayedCards
+        return self.__playedCardDict[color]
 
     def getDiscardedCardCounter(self, color: str):
         assert color == "R" or color == "G" or color == "B" or color == "W" or color == "Y", "invalid card color"
+        return self.__discardedCardCounterDict[color]
 
-        if color == "R":
-            return self.__redDiscardedCardCounter
-        elif color == "G":
-            return self.__greenDiscardedCardCounter
-        elif color == "B":
-            return self.__blueDiscardedCardCounter
-        elif color == "W":
-            return self.__whiteDiscardedCardCounter
-        return self.__yellowDiscardedCardCounter
-
-    def getDiscardedCardCounterList(self):
-        return self.__discardedCardCounterList
+    def getDiscardedCardCounterDict(self):
+        return self.__discardedCardCounterDict
 
     def doAction(self, action: Action):
         """
