@@ -105,6 +105,12 @@ class HanabiGui(QMainWindow, MainAlpha):
         # 창크기 조절, 출력
         self.setFixedSize(1910, 990)
         self.setWindowTitle('Hanabi')
+
+        # 자식 창 선언
+        self.throwDeckWindow = None
+        self.dropDeckWindow = None
+        self.giveHintWindow = None
+
         self.show()
 
     def showEvent(self, event):
@@ -166,18 +172,18 @@ class HanabiGui(QMainWindow, MainAlpha):
         # 내 차례라면 창을 연다.
         if self.isTurn:
             print("Opening a Throw window...")
-            self.w = AppThrowDeck(self)
-            self.w.setGeometry(QRect(700, 400, 300, 200))
-            self.w.show()
+            self.throwDeckWindow = AppThrowDeck(self)
+            self.throwDeckWindow.setGeometry(QRect(700, 400, 300, 200))
+            self.throwDeckWindow.show()
 
     # 카드 내기 창
     def showDropDeck(self):
         # 내 차례라면 창을 연다.
         if self.isTurn:
             print("Opening a Drop window...")
-            self.w = AppDropDeck(self)
-            self.w.setGeometry(QRect(700, 400, 300, 200))
-            self.w.show()
+            self.dropDeckWindow = AppDropDeck(self)
+            self.dropDeckWindow.setGeometry(QRect(700, 400, 300, 200))
+            self.dropDeckWindow.show()
 
     # 힌트 주기 창
     def showGiveHint(self):
@@ -185,15 +191,9 @@ class HanabiGui(QMainWindow, MainAlpha):
         if self.isTurn and self.gm.getHintToken() != 0:
             print("Opening a GiveHint window...")
             # 플레이어 덱 정보를 넘겨야 하므로 gm.playerDecks 를 매개변수로 넣는다 .
-            self.w = AppGiveHint(self)
-            self.w.setGeometry(QRect(700, 400, 300, 200))
-            self.w.show()
-
-    def clickedGiveHint(self):
-        # 내 차례라면 창을 연다.
-        if self.isTurn:
-            winGiveHint = GiveHint()
-            winGiveHint.show()
+            self.giveHintWindow = AppGiveHint(self)
+            self.giveHintWindow.setGeometry(QRect(700, 400, 300, 200))
+            self.giveHintWindow.show()
 
     def onReceiveGameStartSymbol(self, data: str):
         beginPlayerIndex = int(data[0])
@@ -249,43 +249,30 @@ class HanabiGui(QMainWindow, MainAlpha):
         playedCard = self.gm.playerDecks[self.gm.currentPlayerIndex].getCardOrNone(cardIndex)
 
         flag = self.gm.doActionPlay(action)
-
+        playedCardNotice = "%d번째 플레이어가 %s 카드를 냈습니다.\n" % (self.gm.currentPlayerIndex, str(playedCard))
+        isCardEmptyNotice = "카드가 전부 떨어졌습니다. \n" \
+                            "다음 %d번째 플레이어의 차례를 마치면 게임을 끝냅니다." % self.gm.lastPlayerIndex
+        doPlayerGetCardNotice = "%d번 플레이어가 새로운 카드를 받았습니다.\n" % self.gm.currentPlayerIndex
         # 카드 내는 데에 성공했다면
+        notice = playedCardNotice
         if flag:
-            # 남은 덱이 있다면
-            if not self.gm.isCardsEmpty():
-                notice = "Play 성공!\n" \
-                         "%d번째 플레이어가 %s 카드를 냈습니다.\n" \
-                         "%d번 플레이어가 새로운 카드를 받았습니다." % (self.gm.currentPlayerIndex, str(playedCard),
-                                                       self.gm.currentPlayerIndex)
+            notice += "Play 성공!\n"
 
-            # 남은 덱이 없다면
-            else:
-                notice = "Play 성공!\n" \
-                         "%d번째 플레이어가 %s 카드를 냈습니다.\n" \
-                         "%d번 플레이어가 새로운 카드를 받았습니다\n" \
-                         "카드가 전부 떨어졌습니다. \n" \
-                         "다음 %d번째 플레이어의 차례를 마치면 게임을 끝냅니다." \
-                         % (self.gm.currentPlayerIndex, str(playedCard), self.gm.currentPlayerIndex,
-                            (self.gm.currentPlayerIndex + 3) % 4)
-
-            # 카드 내는 데에 실패했다면
+        # 카드 내는 데에 실패했다면
         else:
-            if not self.gm.isCardsEmpty():
-                notice = "Play 실패!\n" \
-                         "라이프 토큰이 하나 감소합니다.\n" \
-                         "%d번 플레이어가 새로운 카드를 받았습니다.\n" % (self.gm.currentPlayerIndex)
+            notice += "Play 실패!\n" \
+                     "라이프 토큰이 하나 감소합니다.\n" \
 
-            # 남은 덱이 없으면
-            else:
-                notice = "Play 실패!\n" \
-                         "라이프 토큰이 하나 감소합니다.\n" \
-                         "%d번 플레이어가 새로운 카드를 받았습니다.\n" \
-                         "카드가 전부 떨어졌습니다.\n" \
-                         "다음 %d번째 플레이어의 차례를 마치면 게임을 끝냅니다." % (self.gm.currentPlayerIndex,
-                                                              (self.gm.currentPlayerIndex + 3) % 4)
+        # 남은 덱이 있다면
+        if not self.gm.isCardsEmpty():
+            notice += + doPlayerGetCardNotice
+
+        # 남은 덱이 없다면
+        else:
+            notice += isCardEmptyNotice
 
         endFlag = self.gm.nextTurn()
+
         if not endFlag:
             pass
 
