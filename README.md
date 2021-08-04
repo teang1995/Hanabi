@@ -89,7 +89,7 @@ y = 4      # 어느정도 여유를 두자
 5. 함수 선언 시, 함수 선언 아래 매개변수와 반환값에 대해 주석으로 서술한다. (파이참의 경우 함수명 아래에 ''' '''를 입력하면 자동으로 틀을 생성해줌.)
 
 ``` python
-def TestForRemark(num1, num2, num3):
+def testForRemark(num1, num2, num3):
     '''
     :param num1:
     :param num2:
@@ -144,7 +144,7 @@ for i in list2: doSomething2()      # 이렇게 연달아 쓰지만 말 것
 5. 함수 선언 시, 매개변수의 자료형에 대해 명시한다. 단, 여러 종류의 자료형을 허용하는 경우 허용하는 자료형에 대해 매개변수가 아닌 Doc스트링에 명시한다.
 
 ``` python
-def TestForStateDataType(num1: int, element):
+def testForStateDataType(num1: int, element):
     '''
     :param num1:
     :param element: string, list      # Allow multiple data type
