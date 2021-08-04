@@ -241,7 +241,6 @@ class HanabiGui(QMainWindow, MainAlpha):
         pass
 
     def onCurrentPlayerPlay(self, cardIndex: int, bUiInput: bool):
-        # TODO : notice 만들 때 한 번에 만들지 말고 append 하는 방식으로 작성하여 코드 중복 방지.
         action = Action(1, cardIndex)
 
         if bUiInput:
@@ -266,7 +265,7 @@ class HanabiGui(QMainWindow, MainAlpha):
 
         # 남은 덱이 있다면
         if not self.gm.isCardsEmpty():
-            notice += + doPlayerGetCardNotice
+            notice += doPlayerGetCardNotice
 
         # 남은 덱이 없다면
         else:
