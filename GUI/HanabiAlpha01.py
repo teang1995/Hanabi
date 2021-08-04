@@ -198,7 +198,7 @@ class HanabiGui(QMainWindow, MainAlpha):
 
     def onReceiveGameStartSymbol(self, data: str):
         beginPlayerIndex = int(data[0])
-        cardStrings = data[1:].split()
+        cardStrings = data[1:].split(',')
 
         cards = []
         for cardStr in cardStrings:
