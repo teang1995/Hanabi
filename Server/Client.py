@@ -84,7 +84,7 @@ class Client():
     def sendAction(self, action: Action):
         time.sleep(1)
         type_ = action.getActionType()
-        actionString = str(type_) + "/"
+        actionString = SYMBOL_ACTION + str(type_) + "/"
 
         if type_ == 3:
             actionString += str(action.getTargetIndex()) + "/"
