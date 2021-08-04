@@ -222,7 +222,7 @@ class HanabiGui(QMainWindow, MainAlpha):
                 hint = Hint(int(actionStrings[2]))
             else:
                 hint = Hint(actionStrings[2])
-            self.onCurrentPlayerGiveHint(hint, targetIndex)
+            self.onCurrentPlayerGiveHint(hint, targetIndex, bUiInput=False)
         else:
             element = int(actionStrings[1]) # card index
 
