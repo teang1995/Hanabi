@@ -44,9 +44,8 @@ class HanabiGui(QMainWindow, MainAlpha):
         self.clientIndex = 0
         self.isTurn = 1
         self.isConnected = False
-        self.client = Client(self.onReceiveGameStartSymbol, self.OnReceiveChat, self.onReceiveAction, IP=SERVER_IP_ADDRESS, port=PORT)
+        self.client = Client(self.onReceiveGameStartSymbol, self.onReceiveChat, self.onReceiveAction, IP=SERVER_IP_ADDRESS, port=PORT)
         self.gm = None
-        self.btnGiveHint.clicked.connect(self.clickedGiveHint)
 
         # 배경 사진 넣기
         background = QImage("background.jpeg")
