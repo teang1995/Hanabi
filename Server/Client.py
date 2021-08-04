@@ -73,9 +73,10 @@ class Client():
     def gettingMsg(self, s):
         while True:
             data_ = s.recv(1024)
+            data_ = data_.decode('utf-8')
             symbol = data_[0:2]
             data = data_[2:]
-            handler = self.getEventHanler(symbol)
+            handler = self.getEventHandler(symbol)
             if handler is not None:
                 handler(data)
         s.close()
