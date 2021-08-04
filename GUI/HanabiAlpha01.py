@@ -666,7 +666,7 @@ class AppGiveHint(QWidget):
 
     def onButtonClicked(self, index: int):
         hint = Hint(Hint.HINT_INFO[index])
-        self.hanabiGui.onCurrentPlayerGiveHint(hint, self.targetPlayerIndex, bUiInput=True)
+        self.mainUi.onCurrentPlayerGiveHint(hint, self.targetPlayerIndex, bUiInput=True)
         self.close()
 
 
