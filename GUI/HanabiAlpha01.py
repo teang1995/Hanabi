@@ -19,7 +19,7 @@ from Server.Client import Client
 import time
 
 FONTSIZE = 10
-SERVER_IP_ADDRESS = "192.168.0.4"
+SERVER_IP_ADDRESS = "18.116.62.218"
 PORT = 7777
 # 파일명만 바꿔서
 MainAlpha = uic.loadUiType("HanabiAlpha.ui")[0]
@@ -116,6 +116,8 @@ class HanabiGui(QMainWindow, MainAlpha):
         while not self.isConnected:
             print("trying Connect to Server")
             self.isConnected = self.client.connectWithServer()
+        self.client.run()
+
         event.accept()
 
     # 부모 창 업데이트 해주는 함수
