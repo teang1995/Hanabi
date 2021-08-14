@@ -28,6 +28,7 @@ class Client():
         self.startHandler = startHandler
         self.actionHandler = actionHandler
         self.chatHandler = chatHandler
+        self.playerNumber = -1;
 
     def connectWithServer(self):
         try:
@@ -93,7 +94,7 @@ class Client():
             actionString += str(action.getCardIndex())
         self.s.sendall(actionString.encode())
 
-    def myPlayerNumberis(self):
+    def getMyPlayerNumber(self):
         return self.playerNumber
 
     def run(self):

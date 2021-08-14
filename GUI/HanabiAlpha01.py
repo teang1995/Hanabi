@@ -19,7 +19,7 @@ from Server.Client import Client
 import time
 
 FONTSIZE = 10
-SERVER_IP_ADDRESS = "18.116.62.218"
+SERVER_IP_ADDRESS = "18.190.156.124"
 PORT = 7777
 # 파일명만 바꿔서
 MainAlpha = uic.loadUiType("HanabiAlpha.ui")[0]
@@ -41,7 +41,7 @@ class HanabiGui(QMainWindow, MainAlpha):
                 beginnerIndex : 서버에서 받아야 함
         '''
         self.beginnerIndex = 0
-        self.clientIndex = 0
+        self.clientIndex = -1
         self.isTurn = 1
         self.isConnected = False
         self.client = Client(self.onReceiveGameStartSymbol, self.onReceiveChat, self.onReceiveAction, IP=SERVER_IP_ADDRESS, port=PORT)
@@ -95,9 +95,16 @@ class HanabiGui(QMainWindow, MainAlpha):
 
         self.updateMainWindow()
 
+        # 버튼 클릭 이벤트 등록
         self.btnThrow.clicked.connect(self.showThrowDeck)
         self.btnDrop.clicked.connect(self.showDropDeck)
         self.btnGiveHint.clicked.connect(self.showGiveHint)
+
+        # 버튼 잠그기
+        self.btnThrow.setDisabled(True)
+        self.btnDrop.setDisabled(True)
+        self.btnGiveHint.setDisabled(True)
+
         # 다음 내용은 불변.
         # 창 아이콘
         self.setWindowIcon(QIcon('Hanabi.PNG'))
@@ -116,6 +123,7 @@ class HanabiGui(QMainWindow, MainAlpha):
         while not self.isConnected:
             print("trying Connect to Server")
             self.isConnected = self.client.connectWithServer()
+            self.clientIndex = self.client.getMyPlayerNumber();
         self.client.run()
 
         event.accept()
@@ -271,21 +279,8 @@ class HanabiGui(QMainWindow, MainAlpha):
         else:
             notice += isCardEmptyNotice
 
-        endFlag = self.gm.nextTurn()
-
-        if not endFlag:
-            pass
-
-        if endFlag or self.gm.getLifeToken() == 0:
-            print("카드 내기로 게임 끝")  # DEBUG
-            notice = "게임 종료!\n" \
-                     "최종 점수: %d점" % (self.gm.calculateScore())
-
-            # 게임이 끝나면 행동 버튼 눌리지 않게 처리함. 추후 변경 필요
-            self.isTurn = 0
-        # 카드 내기 후 notice 갱신
-        self.notice.setText(notice)
-        self.updateMainWindow()
+        # 턴 종료
+        self.onTurnOver(notice)
 
     def onCurrentPlayerDiscard(self, cardIndex: int, bUiInput: bool):
         discardedCard = self.gm.playerDecks[self.gm.currentPlayerIndex].getCardOrNone(cardIndex)
@@ -306,16 +301,8 @@ class HanabiGui(QMainWindow, MainAlpha):
         if self.gm.isCardsEmpty():
             notice += "카드가 전부 떨어졌습니다. 다음 %d번 플레이어의 차례를 마치면 게임이 끝납니다.\n" % self.gm.lastPlayerIndex
 
-        # 게임 진행
-        bEnd = self.gm.nextTurn()
-
-        if bEnd:
-            notice += "게임 종료!\n최종 점수: %d점\n" % self.gm.calculateScore()
-
-        # notice 갱신
-        self.notice.setText(notice)
-
-        self.updateMainWindow()
+        # 턴 종료
+        self.onTurnOver(notice)
 
     def onCurrentPlayerGiveHint(self, hint: Hint, targetIndex: int, bUiInput: bool):
         # 게임 진행
@@ -346,14 +333,26 @@ class HanabiGui(QMainWindow, MainAlpha):
         if self.gm.getHintToken() == 0:
             self.btnGiveHint.setEnabled(False)
 
-        # 게임 진행
+        # 턴 종료
+        self.onTurnOver(notice)
+
+    def onTurnOver(self, noticeMsg: str):
+        # 턴 진행
         bEnd = self.gm.nextTurn()
         if bEnd:
-            notice += "게임 종료!\n최종 점수: %d점\n" % self.gm.calculateScore()
+            noticeMsg += "게임 종료!\n최종 점수: %d점\n" % self.gm.calculateScore()
+
+        if self.gm.currentPlayerIndex == self.clientIndex:
+            self.btnThrow.setEnabled(True)
+            self.btnDrop.setEnabled(True)
+            self.btnGiveHint.setEnabled(True)
+        else:
+            self.btnThrow.setDisabled(True)
+            self.btnDrop.setDisabled(True)
+            self.btnGiveHint.setDisabled(True)
 
         # notice 갱신
-        self.notice.setText(notice)
-
+        self.notice.setText(noticeMsg)
         self.updateMainWindow()
 
 
