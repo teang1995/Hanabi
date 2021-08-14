@@ -214,6 +214,12 @@ class HanabiGui(QMainWindow, MainAlpha):
 
         self.gm = GameManager(cards, self.clientIndex, beginPlayerIndex)
         self.gm.distributeCards()
+
+        if beginPlayerIndex == self.clientIndex:
+            self.btnThrow.setEnabled(True)
+            self.btnDrop.setEnabled(True)
+            self.btnGiveHint.setEnabled(True)
+
         self.updateMainWindow()
         
         # TODO: 시작 전엔 모든 버튼 잠그고, 시작 플레이어만 풀어주기
