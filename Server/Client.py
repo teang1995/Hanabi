@@ -37,8 +37,8 @@ class Client():
             print('connected with Server')
             recevePN = self.s.recv(self.size)
             if recevePN.decode()[0:2] == SYMBOL_PLAYER_NUMBER:
-                self.playerNumber = recevePN.decode()[2]
-                print('Your player number is ', self.playerNumber)
+                self.playerNumber = int(recevePN.decode()[2])
+                print('Your player number is', self.playerNumber)
             else:
                 print('Errer in receiving PN')
 
