@@ -131,11 +131,11 @@ class HanabiGui(QMainWindow, MainAlpha):
     # 부모 창 업데이트 해주는 함수
     def updateMainWindow(self):
         # 덱 갱신
-        playerIndexList = [(i + self.clientIndex) % 4 for i in range(4)]
         # TODO: show no card info of my card
         if self.gm != None:
-            for i in playerIndexList:
-                playerDeck = self.gm.getPlayerDeck(i)
+            for i in range(4):
+                playerIdx = (i + self.clientIndex) % 4
+                playerDeck = self.gm.getPlayerDeck(playerIdx)
 
                 for k in range(4):
                     card = playerDeck.getCardOrNone(k)
