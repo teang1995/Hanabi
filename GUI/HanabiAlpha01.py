@@ -247,10 +247,6 @@ class HanabiGui(QMainWindow, MainAlpha):
             elif type == 2:
                 self.onCurrentPlayerDiscard(element, bUiInput=False)
 
-        # TODO: 각 자식 윈도우에서 처리하는 부분을 main 윈도우 멤버 메소드로 옮겨 하드코딩 없이 이 부분에서 동일한 처리하기 => 진행중
-
-        self.updateMainWindow()
-
     def onReceiveChat(self, data: str):
         # 아직 채팅 UI가 없음
         pass
