@@ -11,12 +11,10 @@ from PyQt5.QtGui import QImage, QPalette, QBrush, QIcon
 from PyQt5.QtCore import Qt, QRect
 
 from Game.GameManager import GameManager
-from Game.GameManagerTest import initCards
 from Game.GameElements import Action
 from Game.GameElements import Hint
 from Game.GameElements import Card
 from Server.Client import Client
-import time
 
 FONTSIZE = 10
 SERVER_IP_ADDRESS = "18.190.156.124"
@@ -24,9 +22,6 @@ PORT = 7777
 # 파일명만 바꿔서
 MainAlpha = uic.loadUiType("HanabiAlpha.ui")[0]
 GiveHintAlpha = uic.loadUiType("testUI02.ui")[0]
-# MainBoard
-# giveHint
-# etc..
 
 SIDE_MARGIN = 1
 
@@ -115,7 +110,7 @@ class HanabiGui(QMainWindow, MainAlpha):
         while not self.isConnected:
             print("trying Connect to Server")
             self.isConnected = self.client.connectWithServer()
-            self.clientIndex = self.client.getMyPlayerNumber();
+            self.clientIndex = self.client.getMyPlayerNumber()
         self.client.run()
 
         event.accept()
@@ -213,8 +208,6 @@ class HanabiGui(QMainWindow, MainAlpha):
             self.btnGiveHint.setEnabled(True)
 
         self.updateMainWindow()
-        
-        # TODO: 시작 전엔 모든 버튼 잠그고, 시작 플레이어만 풀어주기
 
     def onReceiveAction(self, data: str):
         assert self.gm is not None
@@ -283,8 +276,6 @@ class HanabiGui(QMainWindow, MainAlpha):
         action = Action(2, cardIndex)
 
         if bUiInput:    # UI를 통해 입력되었다면 서버로 전달되어야함
-            # TODO: 클라이언트가 초기화되지 않았을 때도 클라이언트를 테스트하기 위해 clinet.isConnectValid() 함수가 있으면 좋을듯
-            # 자꾸 크래시나서 불필요한 테스트 전처리를 많이 해야함 ㅠㅠ
             self.client.sendAction(action)
 
         self.gm.doActionDiscard(action)
