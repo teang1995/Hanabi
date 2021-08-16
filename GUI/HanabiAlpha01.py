@@ -113,11 +113,13 @@ class HanabiGui(QMainWindow, MainAlpha):
         while not self.isConnected:
             print("trying Connect to Server")
             self.isConnected = self.client.connectWithServer()
-            self.clientIndex = self.client.getMyPlayerNumber()
         self.client.run()
-        for i in range(1, 4):
+
+        self.clientIndex = self.client.getMyPlayerNumber()
+        for i in range(4):
             playerIdx = (i + self.clientIndex) % 4
             self.playerIdList[i].setText("player{}".format(playerIdx))
+        
         event.accept()
 
     # 부모 창 업데이트 해주는 함수
