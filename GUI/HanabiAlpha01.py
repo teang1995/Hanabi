@@ -125,7 +125,7 @@ class HanabiGui(QMainWindow, MainAlpha):
             for i in range(1, 4):
                 playerIdx = (i + self.clientIndex) % 4
                 playerDeck = self.gm.getPlayerDeck(playerIdx)
-                self.playerIdList[playerIdx].setText("player{}".format(playerIdx))
+                self.playerIdList[i].setText("player{}".format(playerIdx))
                 for k in range(4):
                     card = playerDeck.getCardOrNone(k)
 
