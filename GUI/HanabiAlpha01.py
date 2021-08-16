@@ -81,17 +81,9 @@ class HanabiGui(QMainWindow, MainAlpha):
         for card in self.droppedCardList:
             card.setText("0")
 
-        # for i, deck in enumerate(self.deckList):
-        #     # clinet 위치를 어떻게 잡느냐가 관건..
-        #     # 아래 주석은 자신의 카드를 가리기 위한 코드. test 시에는 무시하고 진행한다.
-        #     '''
-        #     if i == self.clientIndex:
-        #         for j in range(4):
-        #             SetCardDesign("mine", deck[j])
-        #     '''
-        #     for j in range(4):
-        #         SetCardDesign(self.gm.playerDecks[i].getCardOrNone(j).getColor(), deck[j])
-        #         deck[j].setText(str(self.gm.playerDecks[i].getCardOrNone(j)))
+        # 자신의 카드를 가리기 위한 코드
+        for i in range(4):
+            setCardDesign("mine", self.deckList[0][i])
 
         self.updateMainWindow()
 
@@ -131,9 +123,8 @@ class HanabiGui(QMainWindow, MainAlpha):
     # 부모 창 업데이트 해주는 함수
     def updateMainWindow(self):
         # 덱 갱신
-        # TODO: show no card info of my card
         if self.gm != None:
-            for i in range(4):
+            for i in range(1, 4):
                 playerIdx = (i + self.clientIndex) % 4
                 playerDeck = self.gm.getPlayerDeck(playerIdx)
 
