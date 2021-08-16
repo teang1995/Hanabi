@@ -76,6 +76,9 @@ class HanabiGui(QMainWindow, MainAlpha):
         for card in self.droppedCardList:
             card.setText("0")
 
+        # 플레이어 아이디 리스트
+        self.playerIdList = [self.player0Id, self.player1Id, self.player2Id, self.player3Id]
+
         # 자신의 카드를 가리기 위한 코드
         for i in range(4):
             setCardDesign("mine", self.deckList[0][i])
@@ -122,7 +125,7 @@ class HanabiGui(QMainWindow, MainAlpha):
             for i in range(1, 4):
                 playerIdx = (i + self.clientIndex) % 4
                 playerDeck = self.gm.getPlayerDeck(playerIdx)
-
+                self.playerIdList[playerIdx].setText("player{}".format(playerIdx))
                 for k in range(4):
                     card = playerDeck.getCardOrNone(k)
 
