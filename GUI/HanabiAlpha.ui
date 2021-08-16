@@ -35,9 +35,7 @@
              </font>
             </property>
             <property name="text">
-             <string>
-player0
-ID : zzangse</string>
+             <string>player0</string>
             </property>
            </widget>
           </item>
@@ -175,14 +173,14 @@ border-color : rgb(0, 0, 0);</string>
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">background-color : rgb(255, 255, 255);
+             <string notr="true">background-color : rgb(12, 0, 186);
 border-radius : 20px;
 border-style : solid;
 border-width : 2px;
-border-color : rgb(0, 0, 0);</string>
+border-color : rgb(0, 0, 0)</string>
             </property>
             <property name="text">
-             <string>W1</string>
+             <string/>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -203,14 +201,14 @@ border-color : rgb(0, 0, 0);</string>
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">background-color : rgb(255, 255, 255);
+             <string notr="true">background-color : rgb(12, 0, 186);
 border-radius : 20px;
 border-style : solid;
 border-width : 2px;
-border-color : rgb(0, 0, 0);</string>
+border-color : rgb(0, 0, 0)</string>
             </property>
             <property name="text">
-             <string>W2</string>
+             <string/>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -231,14 +229,14 @@ border-color : rgb(0, 0, 0);</string>
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">background-color : rgb(255, 255, 255);
+             <string notr="true">background-color : rgb(12, 0, 186);
 border-radius : 20px;
 border-style : solid;
 border-width : 2px;
-border-color : rgb(0, 0, 0);</string>
+border-color : rgb(0, 0, 0)</string>
             </property>
             <property name="text">
-             <string>W3</string>
+             <string/>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -259,14 +257,14 @@ border-color : rgb(0, 0, 0);</string>
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">background-color : rgb(255, 255, 255);
+             <string notr="true">background-color : rgb(12, 0, 186);
 border-radius : 20px;
 border-style : solid;
 border-width : 2px;
-border-color : rgb(0, 0, 0);</string>
+border-color : rgb(0, 0, 0)</string>
             </property>
             <property name="text">
-             <string>W4</string>
+             <string/>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -294,14 +292,14 @@ border-color : rgb(0, 0, 0);</string>
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">background-color : rgb(243, 243, 0);
+             <string notr="true">background-color : rgb(12, 0, 186);
 border-radius : 20px;
 border-style : solid;
 border-width : 2px;
 border-color : rgb(0, 0, 0)</string>
             </property>
             <property name="text">
-             <string>Y1</string>
+             <string/>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -322,14 +320,14 @@ border-color : rgb(0, 0, 0)</string>
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">background-color : rgb(11, 222, 0);
+             <string notr="true">background-color : rgb(12, 0, 186);
 border-radius : 20px;
 border-style : solid;
 border-width : 2px;
 border-color : rgb(0, 0, 0)</string>
             </property>
             <property name="text">
-             <string>G1</string>
+             <string/>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -350,14 +348,14 @@ border-color : rgb(0, 0, 0)</string>
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">background-color : rgb(11, 222, 0);
+             <string notr="true">background-color : rgb(12, 0, 186);
 border-radius : 20px;
 border-style : solid;
 border-width : 2px;
 border-color : rgb(0, 0, 0)</string>
             </property>
             <property name="text">
-             <string>G5</string>
+             <string/>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -378,14 +376,14 @@ border-color : rgb(0, 0, 0)</string>
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">background-color : rgb(49, 190, 255);
+             <string notr="true">background-color : rgb(12, 0, 186);
 border-radius : 20px;
 border-style : solid;
 border-width : 2px;
 border-color : rgb(0, 0, 0)</string>
             </property>
             <property name="text">
-             <string>B3</string>
+             <string/>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -413,63 +411,18 @@ border-color : rgb(0, 0, 0)</string>
              <string notr="true"/>
             </property>
             <property name="text">
-             <string>
-player2
-ID : 영어10자내</string>
+             <string>player2</string>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QGroupBox" name="groupBox">
-            <property name="title">
-             <string>Exclusive Rdiio Buttons</string>
-            </property>
-            <widget class="QRadioButton" name="radioButton">
-             <property name="geometry">
-              <rect>
-               <x>10</x>
-               <y>72</y>
-               <width>141</width>
-               <height>21</height>
-              </rect>
-             </property>
-             <property name="text">
-              <string>Radio 2</string>
-             </property>
-            </widget>
-            <widget class="QRadioButton" name="radioButton_2">
-             <property name="geometry">
-              <rect>
-               <x>10</x>
-               <y>112</y>
-               <width>161</width>
-               <height>31</height>
-              </rect>
-             </property>
-             <property name="text">
-              <string>Radio 3</string>
-             </property>
-            </widget>
-            <widget class="QRadioButton" name="radioButton_3">
-             <property name="geometry">
-              <rect>
-               <x>10</x>
-               <y>20</y>
-               <width>161</width>
-               <height>31</height>
-              </rect>
-             </property>
-             <property name="text">
-              <string>Radio1</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
            </widget>
           </item>
           <item>
            <widget class="QLabel" name="player2Deck0">
+            <property name="minimumSize">
+             <size>
+              <width>18</width>
+              <height>65</height>
+             </size>
+            </property>
             <property name="maximumSize">
              <size>
               <width>120</width>
@@ -482,11 +435,11 @@ ID : 영어10자내</string>
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">background-color : rgb(255, 255, 255);
+             <string notr="true">background-color : rgb(12, 0, 186);
 border-radius : 20px;
 border-style : solid;
 border-width : 2px;
-border-color : rgb(0, 0, 0);</string>
+border-color : rgb(0, 0, 0)</string>
             </property>
             <property name="frameShape">
              <enum>QFrame::Box</enum>
@@ -501,7 +454,7 @@ border-color : rgb(0, 0, 0);</string>
              <number>0</number>
             </property>
             <property name="text">
-             <string>W1</string>
+             <string/>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -510,6 +463,12 @@ border-color : rgb(0, 0, 0);</string>
           </item>
           <item>
            <widget class="QLabel" name="player2Deck1">
+            <property name="minimumSize">
+             <size>
+              <width>18</width>
+              <height>65</height>
+             </size>
+            </property>
             <property name="maximumSize">
              <size>
               <width>120</width>
@@ -522,38 +481,7 @@ border-color : rgb(0, 0, 0);</string>
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">background-color : rgb(255, 79, 79);
-border-radius : 20px;
-border-style : solid;
-border-width : 2px;
-border-color : rgb(0, 0, 0);</string>
-            </property>
-            <property name="frameShape">
-             <enum>QFrame::Box</enum>
-            </property>
-            <property name="text">
-             <string>R4</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="player2Deck2">
-            <property name="maximumSize">
-             <size>
-              <width>120</width>
-              <height>120</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <family>HY중고딕</family>
-             </font>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background-color : rgb(49, 190, 255);
+             <string notr="true">background-color : rgb(12, 0, 186);
 border-radius : 20px;
 border-style : solid;
 border-width : 2px;
@@ -563,7 +491,44 @@ border-color : rgb(0, 0, 0)</string>
              <enum>QFrame::Box</enum>
             </property>
             <property name="text">
-             <string>B2</string>
+             <string/>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="player2Deck2">
+            <property name="minimumSize">
+             <size>
+              <width>18</width>
+              <height>65</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>120</width>
+              <height>120</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>HY중고딕</family>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color : rgb(12, 0, 186);
+border-radius : 20px;
+border-style : solid;
+border-width : 2px;
+border-color : rgb(0, 0, 0)</string>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::Box</enum>
+            </property>
+            <property name="text">
+             <string/>
             </property>
             <property name="textFormat">
              <enum>Qt::AutoText</enum>
@@ -575,6 +540,12 @@ border-color : rgb(0, 0, 0)</string>
           </item>
           <item>
            <widget class="QLabel" name="player2Deck3">
+            <property name="minimumSize">
+             <size>
+              <width>18</width>
+              <height>64</height>
+             </size>
+            </property>
             <property name="maximumSize">
              <size>
               <width>120</width>
@@ -587,7 +558,7 @@ border-color : rgb(0, 0, 0)</string>
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">background-color : rgb(49, 190, 255);
+             <string notr="true">background-color : rgb(12, 0, 186);
 border-radius : 20px;
 border-style : solid;
 border-width : 2px;
@@ -597,7 +568,7 @@ border-color : rgb(0, 0, 0)</string>
              <enum>QFrame::WinPanel</enum>
             </property>
             <property name="text">
-             <string>B1</string>
+             <string/>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -620,8 +591,7 @@ border-color : rgb(0, 0, 0)</string>
            </font>
           </property>
           <property name="text">
-           <string>player1
-ID : 한글폰트가</string>
+           <string>player1</string>
           </property>
          </widget>
         </item>
@@ -639,8 +609,7 @@ ID : 한글폰트가</string>
            </font>
           </property>
           <property name="text">
-           <string>player3
-ID : 안예뻐요</string>
+           <string>player3</string>
           </property>
          </widget>
         </item>
