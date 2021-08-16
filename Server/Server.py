@@ -27,7 +27,7 @@ def CreateRandomCards():
     return cards
 
 
-MAX_PLAYER_NUMBER = 2    # 실제로 만들어서 플레이 할 때는 이걸 4로 바꾸면 댐
+MAX_PLAYER_NUMBER = 4   # 실제로 만들어서 플레이 할 때는 이걸 4로 바꾸면 댐
 SYMBOL_ACTION = '//'
 SYMBOL_CHAT = '#C'
 SYMBOL_PLAYER_NUMBER = '#P'
